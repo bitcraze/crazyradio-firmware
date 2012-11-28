@@ -244,22 +244,21 @@ __sfr __at (0xD9) USBSLP;
 #define INISOVAL (*((__xdata unsigned char *)0xC7E0))
 #define OUTISOVAL (*((__xdata unsigned char *)0xC700))
 
-
-#define SETUPBUF   ((__xdata unsigned char *)0xC7E8)
+unsigned char __at (0xC7E8) SETUPBUF[8];
 
 //EP data buffers
-#define OUT0BUF   ((__xdata unsigned char *)0xC6C0)
-#define IN0BUF    ((__xdata unsigned char *)0xC700)
-#define OUT1BUF   ((__xdata unsigned char *)0xC640)
-#define IN1BUF    ((__xdata unsigned char *)0xC680)
-#define OUT2BUF   ((__xdata unsigned char *)0xC5C0)
-#define IN2BUF    ((__xdata unsigned char *)0xC600)
-#define OUT3BUF   ((__xdata unsigned char *)0xC540)
-#define IN3BUF    ((__xdata unsigned char *)0xC580)
-#define OUT4BUF   ((__xdata unsigned char *)0xC4C0)
-#define IN4BUF    ((__xdata unsigned char *)0xC500)
-#define OUT5BUF   ((__xdata unsigned char *)0xC440)
-#define IN5BUF    ((__xdata unsigned char *)0xC480)
+unsigned char __at (0xC6C0) OUT0BUF[64];
+unsigned char __at (0xC700) IN0BUF[64];
+unsigned char __at (0xC640) OUT1BUF[64];
+unsigned char __at (0xC680) IN1BUF[64];
+unsigned char __at (0xC5C0) OUT2BUF[64];
+unsigned char __at (0xC600) IN2BUF[64];
+unsigned char __at (0xC540) OUT3BUF[64];
+unsigned char __at (0xC580) IN3BUF[64];
+unsigned char __at (0xC4C0) OUT4BUF[64];
+unsigned char __at (0xC500) IN4BUF[64];
+unsigned char __at (0xC440) OUT5BUF[64];
+unsigned char __at (0xC480) IN5BUF[64];
 
 
 /******* USB Registers content ********/

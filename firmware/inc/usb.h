@@ -37,7 +37,7 @@ void usbInit();
 void usbDeinit();
 
 //send one packet of date into the ep buffer and activate it for the next IN transfers
-void usbBulkSend(unsigned char ep, __code char* buff, unsigned char length);
+void usbBulkSend(unsigned char ep, char* buff, unsigned char length);
 
 //States functions
 usbState_t usbGetState();

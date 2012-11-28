@@ -553,7 +553,7 @@ void usbClassIsr() {
 
 //Set a packet to be send for the next IN transfers
 //EP0 only implementation
-void usbBulkSend(unsigned char ep, __code char* buff, unsigned char len) {
+void usbBulkSend(unsigned char ep, char* buff, unsigned char len) {
   ep;
   //Copy the data in the IN buffer
   memcpy(IN0BUF, buff, len);

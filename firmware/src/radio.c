@@ -71,10 +71,10 @@ static __xdata struct {
 };
 
 //Ack payload length by ARD step (steps of 250uS) (From nrf24l01 doc p.34)
-static __code unsigned char ardStep[][] = { {0, 0, 8, 16, 24, 32}, //250Kps
-                                            {15, 32},              //1Mps
-                                            {5, 32},               //2Mps
-                                          };
+static __code unsigned char ardStep[3][6] = { {0, 0, 8, 16, 24, 32}, //250Kps
+                                              {15, 32},              //1Mps
+                                              {5, 32},               //2Mps
+                                            };
 
 static __code unsigned char setupDataRate[] = {0x20, 0x00, 0x08};
 
