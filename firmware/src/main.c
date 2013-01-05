@@ -47,6 +47,11 @@ __xdata char tbuffer[33];
 //Receive buffer (from the ack)
 __xdata char rbuffer[33];
 
+//Limits the scann result to 63B to avoid having to send two result USB packet
+//See usb_20.pdf #8.5.3.2
+#define MAX_SCANN_LENGTH 63
+static char scannLength;
+
 static bool contCarrier=false;
 static bool needAck = true;
 
@@ -242,6 +247,64 @@ void handleUsbVendorSetup()
         
         usbAckSetup();
         return;
+    }
+    else if(setup->request == CHANNEL_SCANN && setup->requestType == 0x40)
+    {
+      int i;
+      char rlen;
+      char status;
+      char inc = 1;
+      unsigned char start, stop;
+      scannLength = 0;
+      
+      if(setup->length < 1)
+      {
+        usbDismissSetup();
+        return;
+      }
+      
+      //Start and stop channels
+      start = setup->value;
+      stop = (setup->index>125)?125:setup->index;
+      
+      if (radioGetDataRate() == DATA_RATE_2M)
+        inc = 2; //2M channel are 2MHz wide
+      
+      //Arm and wait for the out transaction
+      OUT0BC = BCDUMMY;
+      while (EP0CS & OUTBSY);
+      
+      memcpy(tbuffer, OUT0BUF, setup->length);
+      for (i=start; i<stop+1 && scannLength<MAX_SCANN_LENGTH; i+=inc)
+      {
+        radioSetChannel(i);
+        status = radioSendPacket(tbuffer, setup->length, rbuffer, &rlen);
+        
+        if (status)
+          IN0BUF[scannLength++] = i;
+        
+        ledTimeout = 2;
+        ledSet(LED_GREEN | LED_RED, false);
+        if(status)
+          ledSet(LED_GREEN, true);
+        else
+          ledSet(LED_RED, true);
+      }
+      
+      //Ack the setup phase
+      usbAckSetup();
+      return;
+    }
+    else if(setup->request == CHANNEL_SCANN && setup->requestType == 0xC0)
+    {
+      //IN0BUF already contains the right data
+      //(if a scann has been launched before ...)
+      IN0BC = (setup->length>scannLength)?scannLength:setup->length;
+      while (EP0CS & INBSY);
+      
+      //Ack the setup phase
+      usbAckSetup();
+      return;
     }
   }
   

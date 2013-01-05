@@ -51,6 +51,7 @@ SET_RADIO_ARD     = 0x05
 SET_RADIO_ARC     = 0x06
 ACK_ENABLE        = 0x10
 SET_CONT_CARRIER  = 0x20
+SCANN_CHANNELS    = 0x21
 LAUNCH_BOOTLOADER = 0xFF
 
 try:
@@ -188,6 +189,23 @@ class Crazyradio:
         else:
             sendVendorSetup(self.handle, SET_CONT_CARRIER, 0, 0, ())
 
+    def hasFwScann(self):
+        return self.version>=0.5
+
+    def scannChannels(self, start, stop, packet):
+    
+        if self.hasFwScann():# Fast firmware-driven scann
+            sendVendorSetup(self.handle, SCANN_CHANNELS, start, stop, packet)
+            return tuple(getVendorSetup(self.handle, SCANN_CHANNELS, 0, 0, 64))
+        else: # Slow PC-driven scann
+            result = tuple()
+            for i in range(start, stop+1):
+                self.setChannel(i)
+                status = self.sendPacket(packet)
+                if status and status.ack:
+                    result = result + (i,)
+            return result
+
     ### Data transferts ###
     def sendPacket(self, dataOut):
         """ Send a packet and receive the ack from the radio dongle
@@ -224,3 +242,11 @@ def sendVendorSetup(handle, request, value, index, data):
         handle.ctrl_transfer(usb.TYPE_VENDOR, request, wValue=value, wIndex=index, timeout=1000, data_or_wLength = data)
     else:
         handle.controlMsg(usb.TYPE_VENDOR, request, data, value=value, index=index, timeout=1000)
+
+def getVendorSetup(handle, request, value, index, length):
+    if pyusb1:
+        return handle.ctrl_transfer(usb.TYPE_VENDOR | 0x80, request, wValue=value,
+                                    wIndex=index, timeout=1000, data_or_wLength = length)
+    else:
+        return handle.controlMsg(usb.TYPE_VENDOR | 0x80, request, length, value=value,
+                                index=index, timeout=1000)

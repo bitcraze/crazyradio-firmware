@@ -357,6 +357,11 @@ void radioSetDataRate(unsigned char dr)
   radioUpdateRetr();
 }
 
+char radioGetDataRate()
+{
+  return radioConf.dataRate;
+}
+
 void radioSetPower(char power)
 {
   radioConf.power = power&0x03;

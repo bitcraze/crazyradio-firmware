@@ -37,6 +37,7 @@ unsigned char radioSendPacket(__xdata char *payload, char len,
 void radioSendPacketNoAck(__xdata char *payload, char len);
 void radioSetChannel(char channel);
 void radioSetDataRate(unsigned char dr);
+char radioGetDataRate();
 void radioSetAddress(__xdata char* address);
 void radioSetPower(char power);
 void radioSetArd(char ard);

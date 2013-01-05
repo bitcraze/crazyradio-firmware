@@ -108,6 +108,7 @@ typedef struct {
 #define SET_RADIO_ARC     0x06
 #define ACK_ENABLE        0x10
 #define SET_CONT_CARRIER  0x20
+#define CHANNEL_SCANN     0x21
 #define LAUNCH_BOOTLOADER 0xFF
 
 //SET_DATA_RATE parameter
