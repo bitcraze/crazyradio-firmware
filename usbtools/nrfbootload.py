@@ -91,7 +91,7 @@ try:
         print "Reading %d bytes from address 0x%04X" % (length, address)
         flash = bl.read(address, length)
         
-        f = open(filename, "w")
+        f = open(filename, "wb")
         f.write(flash)
         f.close()
         
@@ -127,7 +127,7 @@ try:
             print "  Error: A file name must be specified"
             raise Exception()
         
-        f=open(filename, "r")
+        f=open(filename, "rb")
         fileData = bytearray(f.read())
         f.close()
         
@@ -147,7 +147,7 @@ try:
             raise Exception()
         
         print "  Reading %s..." % filename
-        f=open(filename, "r")
+        f=open(filename, "rb")
         fileData = bytearray(f.read())
         f.close()
         
