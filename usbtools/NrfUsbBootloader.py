@@ -82,9 +82,9 @@ class Bootloader:
         
         for i in range(startBlock, startBlock+nBlock):
             if i%256 == 0:
-                self.handle.bulkWrite(0x01, (CMD_SETHALF, i/256), 1000)
+                self.handle.bulkWrite(0x01, (CMD_SETHALF, (i/256)%2), 1000)
                 self.handle.bulkRead(0x81, 64, 1000)
-            self.handle.bulkWrite(0x01, (CMD_READ, i), 1000)
+            self.handle.bulkWrite(0x01, (CMD_READ, i%256), 1000)
             data += tuple(self.handle.bulkRead(0x81, 64, 1000))
         
         return data
