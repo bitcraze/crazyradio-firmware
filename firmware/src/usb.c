@@ -258,9 +258,10 @@ void usbSetupIsr()
     // Get device descriptor request
     if(SETUPBUF[1] == GET_DESCRIPTOR && SETUPBUF[3] == DEVICE_DESCRIPTOR)
     {
+      unsigned short dLength = ((unsigned short)SETUPBUF[7]<<8) + ((unsigned short)SETUPBUF[6]<<0);
       //put the descriptor in the inflow structure
       inflow[0].buffer = usbDeviceDescriptor;
-      inflow[0].len = inflow[0].buffer[0];
+      inflow[0].len = MIN(dLength, inflow[0].buffer[0]);
       inflow[0].ptr = 0;
       inflow[0].rdy = 1;
       
@@ -273,6 +274,7 @@ void usbSetupIsr()
     //Get String descriptor request
     if (SETUPBUF[1] == GET_DESCRIPTOR && SETUPBUF[3] == STRING_DESCRIPTOR)
     {
+      unsigned short dLength = ((unsigned short)SETUPBUF[7]<<8) + ((unsigned short)SETUPBUF[6]<<0);
       //put the descriptor in the inflow structure
       if (SETUPBUF[2]==0)
         inflow[0].buffer = usbStringDescriptor0;
@@ -290,7 +292,7 @@ void usbSetupIsr()
         return;
       }
       
-      inflow[0].len = inflow[0].buffer[0];
+      inflow[0].len = MIN(dLength, inflow[0].buffer[0]);
       inflow[0].ptr = 0;
       inflow[0].rdy = 1;
       
