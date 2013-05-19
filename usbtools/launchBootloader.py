@@ -37,22 +37,22 @@ def findDevice(vid, pid):
           return device
   return None
 
-def launchBootloader():
+def launchBootloader(verbose = False):
   dev= findDevice(0x1915, 0x7777)
   if dev==None:
     dev= findDevice(0x1915, 0x0101)
     if dev==None:
-      if __name__=="__main__":
+      if verbose:
         print "Error!, cannot find the CrazyRadio USB dongle!"
       return -1
     else:
-      if __name__=="__main__":
+      if verbose:
         print "Bootloader already launched."
       return 0
 
   handle = dev.open()
   
-  if __name__=="__main__":
+  if verbose:
     sys.stdout.write("Launch bootloader ")
     sys.stdout.flush()
 
@@ -69,7 +69,7 @@ def launchBootloader():
   dev = None
 
   for i in range(0,4):
-    if __name__=="__main__":
+    if verbose:
       sys.stdout.write(".")
       sys.stdout.flush()
     time.sleep(0.5)
@@ -77,19 +77,19 @@ def launchBootloader():
     if dev!=None:
       break
   
-  if __name__=="__main__":
+  if verbose:
     print ""
   
   if dev==None:
-    if __name__=="__main__":
+    if verbose:
       print "Error!, bootloader not started"
     return -2
 
-  if __name__=="__main__":
+  if verbose:
     print "Bootloader started"
   
   return 0
 
 if __name__=="__main__":
-  sys.exit(launchBootloader())
+  sys.exit(launchBootloader(True))
 

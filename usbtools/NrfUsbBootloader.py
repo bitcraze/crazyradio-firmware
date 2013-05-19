@@ -116,20 +116,27 @@ class Bootloader:
         return True
 
     def write(self, data, address=0):
-        if address!=0:
-            return False
+        """Write to the nrf24lu1 flash. This function will erase and fill with
+           0xff all pages that contains the data but not filled with it (ie.
+           before and after the data if not on page boundary)
+        """
         if len(data)>32*1024:
-            return False
+            raise Exception("Data to be written too big!")
         
         
         data = tuple(bytearray(data))
+        
+        #align data on a page bounday
+        while address%PAGE_SIZE != 0:
+            data = (0xff,) + data
+            address = address-1
         
         #make the data length a multiple of the page size
         while len(data)%PAGE_SIZE != 0:
             data = data+(0xff, )
         
         for i in range(0, len(data), PAGE_SIZE):
-            if not self.writePage(data[i:(i+PAGE_SIZE)], i/PAGE_SIZE):
+            if not self.writePage(data[i:(i+PAGE_SIZE)], (address+i)/PAGE_SIZE):
                 return False
         
         return True
