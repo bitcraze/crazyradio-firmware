@@ -197,9 +197,13 @@ class CradioFlasher(QtGui.QMainWindow):
     def scann_device(self):
         dev = launchBootloader.findDevice(0x1915, 0x7777)
         if (dev):
-            version = "{:03x}".format(dev.deviceVersion)
-            self.deviceLine.setText("Crazyradio dongle v{}.{}".format(
-                                     version[:-2], version[-2:]))
+            if type(dev.deviceVersion) == str:
+            	version = dev.deviceVersion
+            else:
+            	version = "{:03x}".format(dev.deviceVersion)
+            	version = "Crazyradio dongle v{}.{}".format(
+            	                     version[:-2], version[-2:])
+            self.deviceLine.setText("Crazyradio dongle v{}".format(version))
             self.device_ok = True
         elif launchBootloader.findDevice(0x1915, 0x0101):
             self.deviceLine.setText("Nordic semiconductor bootloader")
