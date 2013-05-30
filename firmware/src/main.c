@@ -39,6 +39,12 @@
 #include "ppm.h"
 #endif
 
+//Compilation seems bugged on SDCC 3.1, imposing 3.2
+//Comment-out the three following lines only if you know what you are doing!
+#if SDCC != 320
+#error Compiling with SDCC other than 3.2 is not supported due to a bug when launching the bootloader
+#endif
+
 void launchBootloader();
 void handleUsbVendorSetup();
 
