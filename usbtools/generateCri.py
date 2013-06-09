@@ -14,11 +14,14 @@ usage = """Bitcraze Crazyradio Image generator
 def generate_manifest(verified):
     man = {}
     
-    with os.popen("hg id -ibt") as identify:
-        identity = identify.read().split(" ")
+    with os.popen("hg id -ibt") as fd:
+        identity = fd.read().split(" ")
     man['version'] = identity[0].strip()
     man['branch'] = identity[1].strip()
-    man['tag'] = identity[2].strip()
+    if len(identity)>2:
+        man['tag'] = identity[2].strip()
+    else:
+        man['tag'] = ''
     man['verified'] = verified
     
     return man

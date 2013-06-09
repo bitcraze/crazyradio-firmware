@@ -80,7 +80,7 @@ class CradioFlasher(QtGui.QMainWindow):
                 return
             
             print("Loaded image size {} bytes".format(len(image)))
-            if manifest["tag"] != "tip":
+            if manifest["tag"] != "" and manifest["tag"] != "tip":
                 print("Firmware version: {}".format(manifest['tag']))
                 version = manifest['tag']
             else:
