@@ -174,9 +174,7 @@ void handleUsbVendorSetup()
     {
       //Ack the launch request
       usbAckSetup();
-    
-      //Wait for USB reset
-      while (usbGetState() != DEFAULT);
+
       launchBootloader();
       //Will never come back ...
       
