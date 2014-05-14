@@ -27,15 +27,18 @@
 #include "nRF24LU1p.h"
 #include "led.h"
 
-#define RED_PIN (1<<2)
-#define GREEN_PIN (1<<4)
+static unsigned char redPin;
+static unsigned char greenPin;
 
-void ledInit()
+void ledInit(unsigned char redpin, unsigned char greenpin)
 {
-  //Set P0.2 and P0.4 as output
-  P0DIR &= ~0x14;
-  //Clear P0.2 and P0.4
-  P0 &= ~0x14;
+  redPin = redpin;
+  greenPin = greenpin;
+
+  //Set red and green led pins as output
+  P0DIR &= ~((1<<redPin) | (1<<greenPin));
+  //Clear red and green leds
+  P0 &= ~((1<<redPin) | (1<<greenPin));
 }
 
 void ledSet(led_t led, bool value)
@@ -43,16 +46,16 @@ void ledSet(led_t led, bool value)
   if(led&LED_RED)
   {
     if (value)
-      P0 |= RED_PIN;
+      P0 |= (1<<redPin);
     else
-      P0 &= ~RED_PIN;
+      P0 &= ~(1<<redPin);
   }
 
   if (led & LED_GREEN) 
   {
     if (value)
-      P0 |= GREEN_PIN;
+      P0 |= (1<<greenPin);
     else
-      P0 &= ~GREEN_PIN;
+      P0 &= ~(1<<greenPin);
   }
 }

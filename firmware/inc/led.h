@@ -29,7 +29,7 @@
 
 #include <stdbool.h>
 
-void ledInit();
+void ledInit(unsigned char redpin, unsigned char greenpin);
 
 typedef enum {LED_RED=1, LED_GREEN=2} led_t;
 

@@ -31,6 +31,7 @@
 #include "nRF24LU1p.h"
 #include "nRF24L01.h"
 
+#include "pinout.h"
 #include "utils.h"
 #include "radio.h"
 #include "usb.h"
@@ -41,9 +42,9 @@
 
 //Compilation seems bugged on SDCC 3.1, imposing 3.2
 //Comment-out the three following lines only if you know what you are doing!
-#if SDCC != 320
-#error Compiling with SDCC other than 3.2 is not supported due to a bug when launching the bootloader
-#endif
+//#if SDCC != 320
+//#error Compiling with SDCC other than 3.2 is not supported due to a bug when launching the bootloader
+//#endif
 
 void launchBootloader();
 void handleUsbVendorSetup();
@@ -68,13 +69,30 @@ void main()
   char tlen;  //Transmit length
   char rlen;  //Received packet length
   uint8_t ack;
+  bool with_pa;
+  
+  if ((P0&(1<<2)) == 0)
+    with_pa = false;
+  else
+    with_pa = true;
+
   
   //Init the chip ID
   initId();
   //Init the led and set the leds until the usb is not ready
-  ledInit();
+  if (with_pa == false) {
+    ledInit(CR_LED_RED, CR_LED_GREEN);
+  } else {
+    ledInit(CRPA_LED_RED, CRPA_LED_GREEN);
+  }
   ledSet(LED_GREEN | LED_RED, true);
+  
   // Initialise the radio
+  if (with_pa) {
+    // Enable LNA (PA RX)
+    P0DIR &= ~(1<<CRPA_PA_RXEN);
+    P0 |= (1<<CRPA_PA_RXEN);
+  }
   radioInit();
 #ifdef PPM_JOYSTICK
   // Initialise the PPM acquisition
