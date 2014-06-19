@@ -22,23 +22,22 @@ endif
 
 .PHONY: all cri
 
-all: bin/ cradio.bin
-cri: cradio.cri
+all: bin/cradio.bin
+cri: bin/cradio.cri
 
 # Main targets
-cradio.bin: $(OBJS)
-	$(SDCC) $(LDFLAGS) $(foreach rel,$^,bin/$(rel)) -o bin/cradio.ihx
+bin/cradio.bin: $(OBJS:%=bin/%)
+	$(SDCC) $(LDFLAGS) $^ -o bin/cradio.ihx
 	objcopy -I ihex bin/cradio.ihx -O binary bin/cradio.bin
 
 #Crazyradio firmware image
-cradio.cri: cradio.bin
+bin/cradio.cri: bin/cradio.bin
 	python2 ../usbtools/generateCri.py bin/cradio.bin bin/cradio.cri $(VERIFIED)
 
 clean:
 	rm -f bin/*
 
 mrproper: clean
-	rmdir bin
 	rm -f src/*~ inc/*~ *~
 
 # CPU control targets
@@ -52,10 +51,5 @@ reset:
 	$(NRFPROG) reset
 
 # General targets
-%.rel : %.c
-	$(SDCC) $(CFLAGS) -c $< -o bin/$@
-
-bin/:
-	mkdir -p bin
-
-
+bin/%.rel : %.c
+	$(SDCC) $(CFLAGS) -c $< -o $@
