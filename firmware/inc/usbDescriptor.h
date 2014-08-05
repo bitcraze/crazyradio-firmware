@@ -45,7 +45,7 @@ extern __code const char usbConfigurationDescriptor[57];
 extern __code const char usbHidReportDescriptor[32];
 extern __code char usbStringDescriptor0[4];
 extern __code char usbStringDescriptor1[18];
-extern __code char usbStringDescriptor2[44];
+extern __code char usbStringDescriptor2[];
 
 //Offset from the beginning of the configration decr. to the HID descr.
 #define USB_HID_DESC_OFFSET 41

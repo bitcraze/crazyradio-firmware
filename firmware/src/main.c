@@ -71,11 +71,11 @@ void main()
   uint8_t ack;
   bool with_pa;
   
-  if ((P0&(1<<2)) == 0)
+#ifndef CFPA
     with_pa = false;
-  else
+#else
     with_pa = true;
-
+#endif
   
   //Init the chip ID
   initId();

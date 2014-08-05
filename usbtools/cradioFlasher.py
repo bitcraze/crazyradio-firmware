@@ -8,6 +8,7 @@ from zipfile import ZipFile
 import os
 import json
 import hashlib
+import usb
 
 import logging
 
@@ -210,7 +211,7 @@ class CradioFlasher(QtGui.QMainWindow):
             else:
             	version = "{:03x}".format(dev.deviceVersion)
             	version = "{}.{}".format(version[:-2], version[-2:])
-            self.deviceLine.setText("Crazyradio dongle v{}".format(version))
+            self.deviceLine.setText("{} v{}".format(dev.open().getString(dev.iProduct, 255), version))
             self.device_ok = True
         elif launchBootloader.findDevice(0x1915, 0x0101):
             self.deviceLine.setText("Nordic semiconductor bootloader")

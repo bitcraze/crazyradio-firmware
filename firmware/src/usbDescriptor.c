@@ -37,7 +37,7 @@ __code const char usbDeviceDescriptor[] = {
   64,                 //bMaxPacketSize0
   0x15, 0x19,         //idVendor (Nordic)
   0x77, 0x77,         //idProduct (Randomly chosen for the development)
-  0x52, 0x00,         //bcdDevice (Version v0.52)
+  0x52, 0x99,         //bcdDevice (DEV Version v99.52)
   0x01,               //iManufacturer (String 1)
   0x02,               //iProduct (String 2)
   0x1D,               //iSerialNumber (the ID is at index 0x1D)
@@ -150,6 +150,7 @@ __code char usbStringDescriptor1[18] = {
   'B', 0, 'i', 0, 't', 0, 'c', 0, 'r', 0, 'a', 0, 'z', 0, 'e', 0, 
 };
 
+#ifndef CFPA
 //Product name "Crazyradio USB Dongle"
 __code char usbStringDescriptor2[44] = {
   44,                 //bLength
@@ -158,5 +159,15 @@ __code char usbStringDescriptor2[44] = {
   'C',0, 'r',0, 'a',0, 'z',0, 'y',0, 'r',0, 'a',0, 'd',0, 'i',0, 'o',0, ' ',0, 
   'U',0, 'S',0, 'B',0, ' ',0, 'D',0, 'o',0, 'n',0, 'g',0, 'l',0, 'e',0
 };
-
+#else
+//Product name "Crazyradio USB Dongle"
+__code char usbStringDescriptor2[50] = {
+  50,                 //bLength
+  STRING_DESCRIPTOR,  //bDescriptor type  
+  //bString ...
+  'C',0, 'r',0, 'a',0, 'z',0, 'y',0, 'r',0, 'a',0, 'd',0, 'i',0, 'o',0, ' ',0, 
+  'P', 0, 'A', 0, ' ', 0, 'U',0, 'S',0, 'B',0, ' ', 0, 
+  'D',0, 'o',0, 'n',0, 'g',0, 'l',0, 'e', 0
+};
+#endif
 
