@@ -20,14 +20,14 @@ ifneq ($(PPM_JOYSTICK), 0)
 endif
 endif
 
-ifdef CFPA
-  CFLAGS += -DCFPA
+ifdef CRPA
+  CFLAGS += -DCRPA
 endif
 
 .PHONY: all cri
 
 all: bin/ cradio.bin
-ifdef CFPA
+ifdef CRPA
 	@echo Crazyradio PA build
 else
 	@echo Original Crazyradio build

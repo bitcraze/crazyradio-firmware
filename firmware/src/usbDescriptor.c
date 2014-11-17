@@ -1,6 +1,6 @@
 /**
- *    ||          ____  _ __                           
- * +------+      / __ )(_) /_______________ _____  ___ 
+ *    ||          ____  _ __
+ * +------+      / __ )(_) /_______________ _____  ___
  * | 0xBC |     / __  / / __/ ___/ ___/ __ `/_  / / _ \
  * +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
  *  ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
@@ -37,7 +37,7 @@ __code const char usbDeviceDescriptor[] = {
   64,                 //bMaxPacketSize0
   0x15, 0x19,         //idVendor (Nordic)
   0x77, 0x77,         //idProduct (Randomly chosen for the development)
-  0x52, 0x99,         //bcdDevice (DEV Version v99.52)
+  0x53, 0x00,         //bcdDevice (Release version v0.53)
   0x01,               //iManufacturer (String 1)
   0x02,               //iProduct (String 2)
   0x1D,               //iSerialNumber (the ID is at index 0x1D)
@@ -138,35 +138,35 @@ __code const char usbHidReportDescriptor[32] = {
 //String descriptor for the language
 __code char usbStringDescriptor0[4] = {
   4,                  //bLength
-  STRING_DESCRIPTOR,  //bDescriptor type  
+  STRING_DESCRIPTOR,  //bDescriptor type
   0X09, 0X04          //English (United States)
 };
 
 //Manufacturer name "Bitcraze"
 __code char usbStringDescriptor1[18] = {
   18,                 //bLength
-  STRING_DESCRIPTOR,  //bDescriptor type  
+  STRING_DESCRIPTOR,  //bDescriptor type
   //bString ...
-  'B', 0, 'i', 0, 't', 0, 'c', 0, 'r', 0, 'a', 0, 'z', 0, 'e', 0, 
+  'B', 0, 'i', 0, 't', 0, 'c', 0, 'r', 0, 'a', 0, 'z', 0, 'e', 0,
 };
 
-#ifndef CFPA
+#ifndef CRPA
 //Product name "Crazyradio USB Dongle"
 __code char usbStringDescriptor2[44] = {
   44,                 //bLength
-  STRING_DESCRIPTOR,  //bDescriptor type  
+  STRING_DESCRIPTOR,  //bDescriptor type
   //bString ...
-  'C',0, 'r',0, 'a',0, 'z',0, 'y',0, 'r',0, 'a',0, 'd',0, 'i',0, 'o',0, ' ',0, 
+  'C',0, 'r',0, 'a',0, 'z',0, 'y',0, 'r',0, 'a',0, 'd',0, 'i',0, 'o',0, ' ',0,
   'U',0, 'S',0, 'B',0, ' ',0, 'D',0, 'o',0, 'n',0, 'g',0, 'l',0, 'e',0
 };
 #else
 //Product name "Crazyradio USB Dongle"
 __code char usbStringDescriptor2[50] = {
   50,                 //bLength
-  STRING_DESCRIPTOR,  //bDescriptor type  
+  STRING_DESCRIPTOR,  //bDescriptor type
   //bString ...
-  'C',0, 'r',0, 'a',0, 'z',0, 'y',0, 'r',0, 'a',0, 'd',0, 'i',0, 'o',0, ' ',0, 
-  'P', 0, 'A', 0, ' ', 0, 'U',0, 'S',0, 'B',0, ' ', 0, 
+  'C',0, 'r',0, 'a',0, 'z',0, 'y',0, 'r',0, 'a',0, 'd',0, 'i',0, 'o',0, ' ',0,
+  'P', 0, 'A', 0, ' ', 0, 'U',0, 'S',0, 'B',0, ' ', 0,
   'D',0, 'o',0, 'n',0, 'g',0, 'l',0, 'e', 0
 };
 #endif
