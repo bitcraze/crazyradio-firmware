@@ -37,7 +37,7 @@ __code const char usbDeviceDescriptor[] = {
   64,                 //bMaxPacketSize0
   0x15, 0x19,         //idVendor (Nordic)
   0x77, 0x77,         //idProduct (Randomly chosen for the development)
-  0x53, 0x00,         //bcdDevice (Release version v0.53)
+  0x53, 0x99,         //bcdDevice (Dev version v99.53)
   0x01,               //iManufacturer (String 1)
   0x02,               //iProduct (String 2)
   0x1D,               //iSerialNumber (the ID is at index 0x1D)
