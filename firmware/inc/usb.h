@@ -99,7 +99,7 @@ typedef struct {
 #define IS_CLASS(X)    ((X&(3<<5))==(1<<5))
 #define IS_VENDOR(X)   ((X&(3<<5))==(2<<5))
 
-//Vendor control messages
+//Vendor control messages and commands
 #define SET_RADIO_CHANNEL 0x01
 #define SET_RADIO_ADDRESS 0x02
 #define SET_DATA_RATE     0x03
@@ -109,7 +109,12 @@ typedef struct {
 #define ACK_ENABLE        0x10
 #define SET_CONT_CARRIER  0x20
 #define CHANNEL_SCANN     0x21
+#define SET_MODE          0x22
 #define LAUNCH_BOOTLOADER 0xFF
+
+//CMD mode commands
+#define CMD_PACKET 0x00
+#define CMD_ERROR  0x30
 
 //SET_DATA_RATE parameter
 #define DATA_RATE_250K 0
@@ -121,6 +126,14 @@ typedef struct {
 #define RADIO_POWER_M12dBm 1
 #define RADIO_POWER_M6dBm  2
 #define RADIO_POWER_0dBm   3
+
+//SET_MODE parameter
+#define MODE_LEGACY 0
+#define MODE_CMD    1
+
+// Error values
+#define ERROR_UNKNOWN_CMD   0
+#define ERROR_MALFORMED_CMD 1
 
 #endif /* __USB_H__ */
 
