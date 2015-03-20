@@ -391,6 +391,8 @@ void sendError(unsigned char code, unsigned char param, unsigned char pos)
   IN1BC = 4;
 }
 
+__xdata char rpbuffer[64];
+
 void cmdRun()
 {
   char status;
@@ -435,11 +437,8 @@ void cmdRun()
             break;
           }
           
-          rbuffer[resPtr] = 0;
-          rbuffer[resPtr+1] = id;
-          
           status = radioSendPacket(&tbuffer[cmdPtr], plen, 
-                                   &rbuffer[resPtr+4], &rlen);
+                                   rpbuffer, &rlen);
           cmdPtr += plen;
           
           ledTimeout = 2;
@@ -449,6 +448,16 @@ void cmdRun()
           else
             ledSet(LED_RED, true);
 
+          //Check if there is enough place in rbuffer, flush it if not
+          if ((resPtr+rlen+4)>64) {
+            //Wait for IN1 to become free
+            while(IN1CS&EPBSY);
+            
+            memcpy(IN1BUF, rbuffer, resPtr);
+            IN1BC = resPtr;
+            resPtr = 0;
+          }
+          
           //Prepare the USB answer, state and ack data
           ack=status?1:0;
           if (ack)
@@ -457,17 +466,15 @@ void cmdRun()
               ack |= radioGetTxRetry()<<4;
           }
           
-          rbuffer[resPtr+2] =ack;
           if(!(status&BIT_TX_DS)) rlen=0;
+          
+          rbuffer[resPtr] = 0;
+          rbuffer[resPtr+1] = id;
+          rbuffer[resPtr+2] =ack;
           rbuffer[resPtr+3] = rlen;
+          memcpy(&rbuffer[resPtr+4], rpbuffer, rlen);
           
           resPtr += rlen+4;
-          
-          //Wait for IN1 to become free
-          while(IN1CS&EPBSY);
-          memcpy(IN1BUF, rbuffer, resPtr);
-          IN1BC = resPtr;
-          resPtr = 0;
           
           break;
         case SET_RADIO_CHANNEL:
@@ -495,6 +502,7 @@ void cmdRun()
           break;
       }
     }
+    
     // Send data that are still in the TX buffer
     if (resPtr != 0) {
       //Wait for IN1 to become free
@@ -503,11 +511,6 @@ void cmdRun()
       memcpy(IN1BUF, rbuffer, resPtr);
       IN1BC = resPtr;
       resPtr = 0;
-    }
-  } else {
-    if (!(IN1CS&EPBSY))
-    {
-      IN1BC = 0; // Aparently timing-out on bulk read is not acceptable!
     }
   }
 }
