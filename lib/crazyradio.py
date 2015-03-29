@@ -58,6 +58,10 @@ LAUNCH_BOOTLOADER = 0xFF
 
 try:
     import usb.core
+    pyusb_backend = None
+    if os.name == "nt":
+        import usb.backend.libusb0 as libusb0
+        pyusb_backend = libusb0.get_backend()
     pyusb1 = True
 except:
     pyusb1 = False
@@ -70,9 +74,8 @@ def _find_devices():
     ret = []
 
     if pyusb1:
-        dev = usb.core.find(idVendor=0x1915, idProduct=0x7777, find_all=1)
-        if dev is not None:
-            ret = dev
+        for d in usb.core.find(idVendor=0x1915, idProduct=0x7777, find_all=1, backend=pyusb_backend):
+            ret.append(d)
     else:
         busses = usb.busses()
         for bus in busses:
@@ -148,8 +151,7 @@ class Crazyradio:
                 self.handle.reset()
         else:
             if self.dev:
-                if os.name != 'nt':
-                    self.dev.reset()
+                self.dev.reset()
 
         self.handle = None
         self.dev = None
@@ -211,6 +213,18 @@ class Crazyradio:
         # FIXME: Mitigation for Crazyradio firmware bug #9
         return False
 
+    def scan_selected(self, selected, packet):
+        result = ()
+        for s in selected:
+            self.set_channel(s["channel"])
+            self.set_data_rate(s["datarate"])
+            status = self.send_packet(packet)
+            if status and status.ack:
+                result = result + (s,)
+
+        return result
+
+
     def scan_channels(self, start, stop, packet):
         if self._has_fw_scan():  # Fast firmware-driven scann
             _send_vendor_setup(self.handle, SCANN_CHANNELS, start, stop,
@@ -238,8 +252,8 @@ class Crazyradio:
                 self.handle.bulkWrite(1, dataOut, 1000)
                 data = self.handle.bulkRead(0x81, 64, 1000)
             else:
-                self.handle.write(1, dataOut, 0, 1000)
-                data = self.handle.read(0x81, 64, 0, 1000)
+                self.handle.write(endpoint=1, data=dataOut, timeout=1000)
+                data = self.handle.read(0x81, 64, timeout=1000)
         except usb.USBError:
             pass
 
