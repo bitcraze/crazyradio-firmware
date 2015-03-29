@@ -130,6 +130,7 @@ typedef struct {
 //SET_MODE parameter
 #define MODE_LEGACY 0
 #define MODE_CMD    1
+#define MODE_PRX    2
 
 // Error values
 #define ERROR_UNKNOWN_CMD   0

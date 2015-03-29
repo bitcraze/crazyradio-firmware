@@ -54,6 +54,7 @@ SET_RADIO_ARC = 0x06
 ACK_ENABLE = 0x10
 SET_CONT_CARRIER = 0x20
 SCANN_CHANNELS = 0x21
+SET_MODE = 0x22
 LAUNCH_BOOTLOADER = 0xFF
 
 try:
@@ -105,6 +106,10 @@ class Crazyradio:
     P_M12DBM = 1
     P_M6DBM = 2
     P_0DBM = 3
+
+    MODE_PTX = 0 # MODE_LEGACY in firmware
+    # MODE_CMD = 1 # Not yet supported
+    MODE_PRX = 2
 
     def __init__(self, device=None, devid=0):
         """ Create object and scan for USB dongle if no device is supplied """
@@ -208,6 +213,10 @@ class Crazyradio:
         else:
             _send_vendor_setup(self.handle, SET_CONT_CARRIER, 0, 0, ())
 
+    def set_mode(self, mode):
+        """ Set the radio mode (PRX/PTX) to be used """
+        _send_vendor_setup(self.handle, SET_MODE, mode, 0, ())
+
     def _has_fw_scan(self):
         #return self.version >= 0.5
         # FIXME: Mitigation for Crazyradio firmware bug #9
@@ -269,6 +278,24 @@ class Crazyradio:
 
         return ackIn
 
+    def sendAck(self, dataOut):
+        """ Add an acknowledgment packet to the acknowledgment queue.
+            Only valid if radio is in PRX mode. """
+        if (pyusb1 is False):
+            self.handle.bulkWrite(1, dataOut, 1000)
+        else:
+            self.handle.write(endpoint=1, data=dataOut, timeout=1000)
+
+    def receive(self, timeout=1000):
+        """ Try to receive a packet or return None, if nothing was received within 
+            the specified timeout. Only valid if radio is in PRX mode."""
+        try:
+            if (pyusb1 is False):
+                return self.handle.bulkRead(0x81, 64, timeout)
+            else:
+                return self.handle.read(0x81, 64, timeout=timeout)
+        except usb.USBError:
+            pass
 
 #Private utility functions
 def _send_vendor_setup(handle, request, value, index, data):

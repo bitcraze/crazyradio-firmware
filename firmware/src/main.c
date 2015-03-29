@@ -49,6 +49,7 @@
 void launchBootloader();
 void handleUsbVendorSetup();
 void legacyRun();
+void prxRun();
 void cmdRun();
 
 //Transmit buffer
@@ -84,7 +85,7 @@ void main()
     P0DIR &= ~(1<<CRPA_PA_RXEN);
     P0 |= (1<<CRPA_PA_RXEN);
 #endif
-  radioInit();
+  radioInit(RADIO_MODE_PTX);
 #ifdef PPM_JOYSTICK
   // Initialise the PPM acquisition
   ppmInit();
@@ -118,6 +119,11 @@ void main()
     {
       // Run cmd mode
       cmdRun();
+    }
+    else if (mode == MODE_PRX)
+    {
+      // Run PRX mode
+      prxRun();
     }
 
     //USB vendor setup handling
@@ -277,6 +283,14 @@ void handleUsbVendorSetup()
     else if(setup->request == SET_MODE && setup->requestType == 0x40)
     {
       mode = setup->value;
+      if (mode == MODE_PRX)
+      {
+        radioSetMode(RADIO_MODE_PRX);
+      }
+      else
+      {
+        radioSetMode(RADIO_MODE_PTX);
+      }
       
       usbAckSetup();
       return;
@@ -512,6 +526,33 @@ void cmdRun()
       IN1BC = resPtr;
       resPtr = 0;
     }
+  }
+}
+
+/* PRX (Primary receiver mode). The radio will listen to incoming packets and send those to
+ * the PC. Packets from the PC will be put in the acknowledgment queue.
+ */
+void prxRun()
+{
+  char tlen;  //Transmit length
+
+  if (!radioIsRxEmpty())
+  {
+    ledTimeout = 2;
+    ledSet(LED_GREEN, true);
+    IN1BC = radioRxPacket(IN1BUF);
+  }
+  //Send a packet if something is received on the USB
+  if (!(OUT1CS&EPBSY) && !contCarrier)
+  {
+    //Deactivate the USB IN
+    IN1CS = 0x02;
+    //Fetch the USB data size. Limit it to 32
+    tlen = OUT1BC;
+    if (tlen>32) tlen=32;
+    radioAckPacket(0, OUT1BUF, tlen);
+    //reactivate OUT1
+    OUT1BC=BCDUMMY;
   }
 }
 

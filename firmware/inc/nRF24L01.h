@@ -52,6 +52,10 @@
 #define REG_RX_PW_P4 0x15
 #define REG_RX_PW_P5 0x16
 #define REG_FIFO_STATUS 0x17
+#define FIFO_STATUS_RX_EMPTY (1<<0)
+#define FIFO_STATUS_RX_FULL  (1<<1)
+#define FIFO_STATUS_TX_EMPTY (1<<4)
+#define FIFO_STATUS_TX_FULL  (1<<5)
 #define REG_DYNPD 0x1C
 #define REG_FEATURE 0x1D
 
