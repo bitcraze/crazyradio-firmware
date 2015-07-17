@@ -48,13 +48,11 @@
 
 void launchBootloader();
 void handleUsbVendorSetup();
-void legacyRun();
-void cmdRun();
 
 //Transmit buffer
-__xdata char tbuffer[64];
+__xdata char tbuffer[33];
 //Receive buffer (from the ack)
-__xdata char rbuffer[64];
+__xdata char rbuffer[33];
 
 //Limits the scann result to 63B to avoid having to send two result USB packet
 //See usb_20.pdf #8.5.3.2
@@ -64,26 +62,37 @@ static char scannLength;
 static bool contCarrier=false;
 static bool needAck = true;
 
-static volatile unsigned char mode = MODE_LEGACY;
-
 void main()
 {
+  char status;
+  char leds=0;
+  char tlen;  //Transmit length
+  char rlen;  //Received packet length
+  uint8_t ack;
+  bool with_pa;
+
+#ifndef CRPA
+    with_pa = false;
+#else
+    with_pa = true;
+#endif
+
   //Init the chip ID
   initId();
   //Init the led and set the leds until the usb is not ready
-#ifndef CRPA
-  ledInit(CR_LED_RED, CR_LED_GREEN);
-#else
-  ledInit(CRPA_LED_RED, CRPA_LED_GREEN);
-#endif
+  if (with_pa == false) {
+    ledInit(CR_LED_RED, CR_LED_GREEN);
+  } else {
+    ledInit(CRPA_LED_RED, CRPA_LED_GREEN);
+  }
   ledSet(LED_GREEN | LED_RED, true);
 
   // Initialise the radio
-#ifdef CRPA
+  if (with_pa) {
     // Enable LNA (PA RX)
     P0DIR &= ~(1<<CRPA_PA_RXEN);
     P0 |= (1<<CRPA_PA_RXEN);
-#endif
+  }
   radioInit();
 #ifdef PPM_JOYSTICK
   // Initialise the PPM acquisition
@@ -109,15 +118,60 @@ void main()
 
   while(1)
   {
-    if (mode == MODE_LEGACY)
+    //Send a packet if something is received on the USB
+    if (!(OUT1CS&EPBSY) && !contCarrier)
     {
-      // Run legacy mode
-      legacyRun();
-    }
-    else if (mode == MODE_CMD)
-    {
-      // Run cmd mode
-      cmdRun();
+
+      //Deactivate the USB IN
+      IN1CS = 0x02;
+
+      //Fetch the USB data size. Limit it to 32
+      tlen = OUT1BC;
+      if (tlen>32) tlen=32;
+
+      //Send the packet
+      memcpy(tbuffer, OUT1BUF, tlen);
+      if (needAck)
+      {
+        status = radioSendPacket(tbuffer, tlen, rbuffer, &rlen);
+
+        //Set the Green LED on success and the Red one on failure
+        //The SOF interrupt decrement ledTimeout and will reset the LEDs when it
+        //reaches 0
+        ledTimeout = 2;
+        ledSet(LED_GREEN | LED_RED, false);
+        if(status)
+          ledSet(LED_GREEN, true);
+        else
+          ledSet(LED_RED, true);
+        //reactivate OUT1
+        OUT1BC=BCDUMMY;
+
+
+        //Prepare the USB answer, state and ack data
+        ack=status?1:0;
+        if (ack)
+        {
+        if (radioGetRpd()) ack |= 0x02;
+        ack |= radioGetTxRetry()<<4;
+        }
+        IN1BUF[0]=ack;
+        if(!(status&BIT_TX_DS)) rlen=0;
+        memcpy(IN1BUF+1, rbuffer, rlen);
+        //Activate the IN EP with length+status
+        IN1BC = rlen+1;
+      }
+      else
+      {
+        radioSendPacketNoAck(tbuffer, tlen);
+
+        ledTimeout = 2;
+        ledSet(LED_GREEN | LED_RED, false);
+        ledSet(LED_GREEN, true);
+
+        //reactivate OUT1
+        OUT1BC=BCDUMMY;
+      }
     }
 
     //USB vendor setup handling
@@ -274,13 +328,6 @@ void handleUsbVendorSetup()
       usbAckSetup();
       return;
     }
-    else if(setup->request == SET_MODE && setup->requestType == 0x40)
-    {
-      mode = setup->value;
-      
-      usbAckSetup();
-      return;
-    }
   }
 
   //Stall in error if nothing executed!
@@ -305,213 +352,3 @@ void launchBootloader()
   //Call the bootloader
   bootloader();
 }
-
-/* 'Legacy' pre-1.0 protocol, handles only radio packets and require the
- *  computer to ping-pong sending and receiving
- */
-void legacyRun()
-{
-  char status;
-  char tlen;  //Transmit length
-  char rlen;  //Received packet length
-  uint8_t ack;
-
-  //Send a packet if something is received on the USB
-  if (!(OUT1CS&EPBSY) && !contCarrier)
-  {
-
-    //Deactivate the USB IN
-    IN1CS = 0x02;
-
-    //Fetch the USB data size. Limit it to 32
-    tlen = OUT1BC;
-    if (tlen>32) tlen=32;
-
-    //Send the packet
-    memcpy(tbuffer, OUT1BUF, tlen);
-    
-    if (needAck)
-    {
-      status = radioSendPacket(tbuffer, tlen, rbuffer, &rlen);
-
-      //Set the Green LED on success and the Red one on failure
-      //The SOF interrupt decrement ledTimeout and will reset the LEDs when it
-      //reaches 0
-      ledTimeout = 2;
-      ledSet(LED_GREEN | LED_RED, false);
-      if(status)
-        ledSet(LED_GREEN, true);
-      else
-        ledSet(LED_RED, true);
-      //reactivate OUT1
-      OUT1BC=BCDUMMY;
-
-
-      //Prepare the USB answer, state and ack data
-      ack=status?1:0;
-      if (ack)
-      {
-      if (radioGetRpd()) ack |= 0x02;
-      ack |= radioGetTxRetry()<<4;
-      }
-      IN1BUF[0]=ack;
-      if(!(status&BIT_TX_DS)) rlen=0;
-      memcpy(IN1BUF+1, rbuffer, rlen);
-      //Activate the IN EP with length+status
-      IN1BC = rlen+1;
-    }
-    else
-    {
-      radioSendPacketNoAck(tbuffer, tlen);
-
-      ledTimeout = 2;
-      ledSet(LED_GREEN | LED_RED, false);
-      ledSet(LED_GREEN, true);
-
-      //reactivate OUT1
-      OUT1BC=BCDUMMY;
-    }
-  }
-}
-
-/* Command mode, the bulk usb packets contains both data and configuration in a
- * command string. The host can, and should, run TX and RX in different threads.
- */
-void sendError(unsigned char code, unsigned char param, unsigned char pos)
-{
-  //Wait for IN1 to become free
-  while(IN1CS&EPBSY);
-
-  //Return an error
-  IN1BUF[0] = CMD_ERROR;
-  IN1BUF[1] = code;
-  IN1BUF[2] = param;
-  IN1BUF[3] = pos;
-
-  IN1BC = 4;
-}
-
-__xdata char rpbuffer[64];
-
-void cmdRun()
-{
-  char status;
-  char tlen;  //Transmit length
-  char cmdPtr;
-  char resPtr;
-  unsigned char id;
-  unsigned char plen;
-  char rlen;  //Received packet length
-  uint8_t ack;
-  unsigned char cmd;
-
-  if (!(OUT1CS&EPBSY) && !contCarrier) {
-    //Fetch the USB data size, should not be higher than 64
-    tlen = OUT1BC;
-    if (tlen>64) tlen=64;
-
-    //Get the command string in a ram buffer
-    memcpy(tbuffer, OUT1BUF, tlen);
-    
-    //And re-activate the out EP
-    OUT1BC=BCDUMMY;
-    
-    // Run commands!
-    cmdPtr = 0;
-    resPtr = 0;
-    while (cmdPtr < tlen) {
-      cmd = tbuffer[cmdPtr++];
-      
-      switch (cmd) {
-        case CMD_PACKET:
-          if ((tlen-cmdPtr)<3) {
-            sendError(ERROR_MALFORMED_CMD, cmd, cmdPtr);
-            cmdPtr = tlen;
-            break;
-          }
-          id = tbuffer[cmdPtr++];
-          plen = tbuffer[cmdPtr++];
-          if ((tlen-(cmdPtr+plen))<0) {
-            sendError(ERROR_MALFORMED_CMD, cmd, cmdPtr);
-            cmdPtr = tlen;
-            break;
-          }
-          
-          status = radioSendPacket(&tbuffer[cmdPtr], plen, 
-                                   rpbuffer, &rlen);
-          cmdPtr += plen;
-          
-          ledTimeout = 2;
-          ledSet(LED_GREEN | LED_RED, false);
-          if(status)
-            ledSet(LED_GREEN, true);
-          else
-            ledSet(LED_RED, true);
-
-          //Check if there is enough place in rbuffer, flush it if not
-          if ((resPtr+rlen+4)>64) {
-            //Wait for IN1 to become free
-            while(IN1CS&EPBSY);
-            
-            memcpy(IN1BUF, rbuffer, resPtr);
-            IN1BC = resPtr;
-            resPtr = 0;
-          }
-          
-          //Prepare the USB answer, state and ack data
-          ack=status?1:0;
-          if (ack)
-          {
-            if (radioGetRpd()) ack |= 0x02;
-              ack |= radioGetTxRetry()<<4;
-          }
-          
-          if(!(status&BIT_TX_DS)) rlen=0;
-          
-          rbuffer[resPtr] = 0;
-          rbuffer[resPtr+1] = id;
-          rbuffer[resPtr+2] =ack;
-          rbuffer[resPtr+3] = rlen;
-          memcpy(&rbuffer[resPtr+4], rpbuffer, rlen);
-          
-          resPtr += rlen+4;
-          
-          break;
-        case SET_RADIO_CHANNEL:
-          if (((tlen-cmdPtr)<1) || (tbuffer[cmdPtr]>125)) {
-            sendError(ERROR_MALFORMED_CMD, cmd, cmdPtr);
-            cmdPtr = tlen;
-            break;
-          }
-          
-          radioSetChannel(tbuffer[cmdPtr++]);
-          
-          break;
-        case SET_DATA_RATE:
-          if (((tlen-cmdPtr)<1) || (tbuffer[cmdPtr]>3)) {
-            sendError(ERROR_MALFORMED_CMD, cmd, cmdPtr);
-            cmdPtr = tlen;
-            break;
-          }
-          
-          radioSetDataRate(tbuffer[cmdPtr++]);
-          
-          break;
-        default:
-          sendError(ERROR_UNKNOWN_CMD, cmd,  cmdPtr);
-          break;
-      }
-    }
-    
-    // Send data that are still in the TX buffer
-    if (resPtr != 0) {
-      //Wait for IN1 to become free
-      while(IN1CS&EPBSY);
-      
-      memcpy(IN1BUF, rbuffer, resPtr);
-      IN1BC = resPtr;
-      resPtr = 0;
-    }
-  }
-}
-
