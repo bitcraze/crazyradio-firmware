@@ -1,0 +1,4 @@
+{
+  "artifactType": "firmware-MCS51",
+  "buildScript": "tools/build/build.sh"
+}
