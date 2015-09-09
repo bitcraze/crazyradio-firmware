@@ -1,4 +1,15 @@
 {
-  "artifactType": "firmware-MCS51",
-  "buildScript": "tools/build/build.sh"
+  "version": "1.0",
+  "environmentReq": [
+    "sdcc"
+  ],
+  "artifacts": {
+    "file": [
+      {
+        "source": "firmware/bin/cradio.bin",
+        "insertTag": true,
+        "destination": "currDir"
+      }
+    ]
+  }
 }
