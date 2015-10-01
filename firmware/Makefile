@@ -26,22 +26,22 @@ endif
 
 .PHONY: all cri
 
-all: bin/ cradio.bin
+all: bin/cradio.bin
 ifdef CRPA
 	@echo Crazyradio PA build
 else
 	@echo Original Crazyradio build
 endif
 
-cri: cradio.cri
+cri: bin/cradio.cri
 
 # Main targets
-cradio.bin: $(OBJS)
-	$(SDCC) $(LDFLAGS) $(foreach rel,$^,bin/$(rel)) -o bin/cradio.ihx
+bin/cradio.bin: $(OBJS:%=bin/%)
+	$(SDCC) $(LDFLAGS) $^ -o bin/cradio.ihx
 	objcopy -I ihex bin/cradio.ihx -O binary bin/cradio.bin
 
 #Crazyradio firmware image
-cradio.cri: cradio.bin
+bin/cradio.cri: bin/cradio.bin
 	python2 ../usbtools/generateCri.py bin/cradio.bin bin/cradio.cri $(VERIFIED)
 
 clean:
