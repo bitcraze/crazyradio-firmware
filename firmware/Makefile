@@ -9,7 +9,7 @@ VERIFIED ?= 0
 CFLAGS = -Iinc/ --model-large --std-sdcc99
 LDFLAGS = --xram-loc 0x8000 --xram-size 2048 --model-large
 
-VPATH += src/
+VPATH += src/ bin/
 
 OBJS = main.rel radio.rel usb.rel usbDescriptor.rel led.rel utils.rel
 
@@ -26,7 +26,7 @@ endif
 
 .PHONY: all cri
 
-all: bin/ cradio.bin
+all: cradio.bin
 ifdef CRPA
 	@echo Crazyradio PA build
 else
@@ -37,23 +37,22 @@ cri: cradio.cri
 
 # Main targets
 cradio.bin: $(OBJS)
-	$(SDCC) $(LDFLAGS) $(foreach rel,$^,bin/$(rel)) -o bin/cradio.ihx
+	$(SDCC) $(LDFLAGS) $(OBJS:%=bin/%) -o bin/cradio.ihx
 	objcopy -I ihex bin/cradio.ihx -O binary bin/cradio.bin
 
 #Crazyradio firmware image
-cradio.cri: cradio.bin
+bin/cradio.cri: bin/cradio.bin
 	python2 ../usbtools/generateCri.py bin/cradio.bin bin/cradio.cri $(VERIFIED)
 
 clean:
 	rm -f bin/*
 
 mrproper: clean
-	rmdir bin
 	rm -f src/*~ inc/*~ *~
 
 # CPU control targets
 flash: all
-	$(NRFPROG) write bin/cradio.bin
+	$(NRFPROG) write cradio.bin
 
 halt:
 	$(NRFPROG) holdreset
@@ -62,10 +61,8 @@ reset:
 	$(NRFPROG) reset
 
 # General targets
-%.rel : %.c
+%.rel: %.c
 	$(SDCC) $(CFLAGS) -c $< -o bin/$@
 
 bin/:
 	mkdir -p bin
-
-
