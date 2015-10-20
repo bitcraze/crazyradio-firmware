@@ -12,8 +12,23 @@ Crazyradio and the USB protocol used.
 - lib: Software libraries to use Crazyradio with Pyton
 
 ## Building the firmware
-The development environment is described [here](https://wiki.bitcraze.io/projects:crazyradio:dev_env).
-To build the firmware go into the firmware directory and make
+Requirement:
+  - SDCC
+  - Binutils (needs objcopy)
+
+On Ubuntu this can be installed with:
+```
+sudo apt-get install sdcc binutils
+```
+
+On Mac (using homebrew):
+```
+brew install sdcc
+brew install binutils
+ln -s /usr/local/bin/gobjcopy /usr/local/bin/objcopy
+```
+
+To build the firmware you should navigate to the firmware directory.
 
 ### Build for Crazyradio
 ```
