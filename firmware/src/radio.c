@@ -40,7 +40,7 @@
 #define CMD_FLUSH_RX 0xE2
 #define CMD_REUSE_TX_PL 0xE3
 #define CMD_RX_PL_WID 0x60
-#define CMD_W_ACK_PAYLOAD 0xA8
+#define CMD_W_ACK_PAYLOAD(P)  (0xA8|(P&0x0F))
 #define CMD_W_TX_PAYLOAD_NO_ACK 0xD0
 #define CMD_NOP 0xFF
 
@@ -98,15 +98,25 @@ char spiRadioReceive()
   return spiRadioSend(0x00);
 }
 
-void radioInit()
+void radioInit(enum radioMode_e mode)
 {
   int i;
   // Clock the radio and enable the radio SPI
   RFCON = 0x06;
   RFCTL = 0x10;  //SPI enable @8MHz
-  
-  // Energize the radio in PTX mode. Interrupts disable
-  radioWriteReg(REG_CONFIG, 0x7E);
+
+  switch (mode)
+  {
+  case RADIO_MODE_PTX:
+    // Energize the radio in PTX mode. Interrupts disable
+    radioWriteReg(REG_CONFIG, 0x7E);
+    break;
+  case RADIO_MODE_PRX:
+    // Energize the radio in PRX mode. Interrupts disable
+    radioWriteReg(REG_CONFIG, 0x3F);
+    break;
+  }
+
   //Wait a little while for the radio to be rdy
   for(i=0;i<1000;i++);
   //Enable the dynamic packet size and the ack payload
@@ -221,6 +231,22 @@ void radioTxPacketNoAck(__xdata char *payload, char len)
   CE_PULSE();
   
   return;
+}
+
+//Send a packet as acknowledgment payload
+void radioAckPacket(char pipe, __xdata char* payload, char len)
+{
+  int i;
+
+  RADIO_EN_CS();
+
+  /* Send the read command with the address */
+  spiRadioSend(CMD_W_ACK_PAYLOAD(pipe));
+  /* Read LEN bytes */
+  for(i=0; i<len; i++)
+    spiRadioSend(payload[i]);
+
+  RADIO_DIS_CS();
 }
 
 //Fetch the next act payload
@@ -425,3 +451,24 @@ uint8_t radioGetTxRetry(void)
     return radioReadReg(REG_OBSERVE_TX)&0x0F;
 }
 
+void radioSetMode(enum radioMode_e mode)
+{
+  switch (mode)
+  {
+  case RADIO_MODE_PTX:
+    // Energize the radio in PTX mode. Interrupts disable
+    radioWriteReg(REG_CONFIG, 0x7E);
+    break;
+  case RADIO_MODE_PRX:
+    // Energize the radio in PRX mode. Interrupts disable
+    radioWriteReg(REG_CONFIG, 0x7F);
+    // start receiving
+    RADIO_EN_CE();
+    break;
+  }
+}
+
+bool radioIsRxEmpty()
+{
+  return radioReadReg(REG_FIFO_STATUS)&FIFO_STATUS_RX_EMPTY;
+}

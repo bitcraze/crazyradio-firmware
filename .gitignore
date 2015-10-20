@@ -1,10 +1,5 @@
-<<<<<<< HEAD
-/firmware/bin
-/nrfProg/*.o
-/nrfProg/nrfProg
-
-=======
 *~
 firmware/bin/*
 *.pyc
->>>>>>> dea0ae69fe64eed15420195b34bf569ac05f4396
+*.o
+nrfProg/nrfProg
