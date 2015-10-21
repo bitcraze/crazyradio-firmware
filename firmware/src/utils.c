@@ -1,6 +1,6 @@
 /**
- *    ||          ____  _ __                           
- * +------+      / __ )(_) /_______________ _____  ___ 
+ *    ||          ____  _ __
+ * +------+      / __ )(_) /_______________ _____  ___
  * | 0xBC |     / __  / / __/ ___/ ___/ __ `/_  / / _ \
  * +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
  *  ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
@@ -31,20 +31,19 @@
 int ledTimeout;
 __xdata uint8_t chip_id[5];
 
-__xdata volatile uint8_t *infopage_id = (__xdata void*) 0x000B;
+__xdata __at (0x000B) uint8_t infopage_id[5];
 
 void initId()
 {
-  int i;  
-  
+  int i;
+
   //Activate the info page
   FSR |= FSR_INFEN;
-  
+
   //Read the ID
   for (i=0; i<5; i++)
     chip_id[i] = infopage_id[i];
-  
+
   //Deactivate the info page
   FSR &= ~FSR_INFEN;
 }
-
