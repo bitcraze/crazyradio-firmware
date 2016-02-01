@@ -1,0 +1,2 @@
+There are multiple licenses for the files in this repository. See subdirectories
+and file headers for specifics.
