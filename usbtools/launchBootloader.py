@@ -28,6 +28,7 @@ import usb
 import sys
 import time
 
+
 def findDevice(vid, pid):
   busses = usb.busses()
   for bus in busses:
@@ -43,15 +44,15 @@ def launchBootloader(verbose = False):
     dev= findDevice(0x1915, 0x0101)
     if dev==None:
       if verbose:
-        print "Error!, cannot find the CrazyRadio USB dongle!"
+        print("Error!, cannot find the CrazyRadio USB dongle!")
       return -1
     else:
       if verbose:
-        print "Bootloader already launched."
+        print("Bootloader already launched.")
       return 0
 
   handle = dev.open()
-  
+
   if verbose:
     sys.stdout.write("Launch bootloader ")
     sys.stdout.flush()
@@ -76,18 +77,18 @@ def launchBootloader(verbose = False):
     dev = findDevice(0x1915, 0x0101)
     if dev!=None:
       break
-  
+
   if verbose:
-    print ""
-  
+    print("")
+
   if dev==None:
     if verbose:
-      print "Error!, bootloader not started"
+      print("Error!, bootloader not started")
     return -2
 
   if verbose:
-    print "Bootloader started"
-  
+    print("Bootloader started")
+
   return 0
 
 if __name__=="__main__":

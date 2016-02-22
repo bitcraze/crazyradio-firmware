@@ -50,7 +50,7 @@ Possible actions:
         <filename>"""
 
 if len(sys.argv)<2:
-    print help % sys.argv[0]
+    print(help % sys.argv[0])
     sys.exit(0)
 
 action = sys.argv[1]
@@ -60,17 +60,17 @@ args = sys.argv[2:]
 try:
     actions.index(action)
 except ValueError:
-    print "Incorrect action %s! " % action
-    print "Launch %s without argument to get some help." % sys.argv[0]
+    print("Incorrect action %s! " % action)
+    print("Launch %s without argument to get some help." % sys.argv[0])
     sys.exit(-1)
 
 bl = NrfUsbBootloader.Bootloader()
 
 if not bl.open():
-    print "Error: cannot found the nRF24LU1 bootloader!"
+    print("Error: cannot found the nRF24LU1 bootloader!")
     sys.exit(-2)
 
-print "Found nRF24LU1 bootloader version", bl.getVersion()
+print("Found nRF24LU1 bootloader version", bl.getVersion())
 
 try:
     if action=="dump":
@@ -80,7 +80,7 @@ try:
         if nargs>0:
             filename = args[0]
         else:
-            print "Error: A file name must be specified"
+            print("Error: A file name must be specified")
             raise Exception()
         
         if nargs>1:
@@ -88,14 +88,14 @@ try:
         if nargs>2:
             length = int(eval(args[2]))
         
-        print "Reading %d bytes from address 0x%04X" % (length, address)
+        print("Reading %d bytes from address 0x%04X" % (length, address))
         flash = bl.read(address, length)
         
         f = open(filename, "wb")
         f.write(flash)
         f.close()
         
-        print "%d bytes written in %s." % (length, filename)
+        print("%d bytes written in %s." % (length, filename))
         
     elif action=="hexdump":
         address=0
@@ -106,63 +106,63 @@ try:
         if nargs>1:
             length = int(eval(args[1]))    
 
-        print "Reading %d bytes of the flash from address 0x%04X" % (length, address)
+        print("Reading %d bytes of the flash from address 0x%04X" % (length, address))
         flash = bl.read(address, length)
         
         for i in range(0,len(flash)):
             if i%16 == 0:
                 if i!=0:
-                    print
+                    print()
                 sys.stdout.write("0x%04X: " % (address+i))
             if i%8==0 and i%16!=0:
                 sys.stdout.write(" ")
             sys.stdout.write("%02X"%flash[i])
         
-        print
+        print()
     if action=="flash":
-        print "Flashing:"
+        print("Flashing:")
         if nargs>0:
             filename = args[0]
         else:
-            print "  Error: A file name must be specified"
+            print("  Error: A file name must be specified")
             raise Exception()
         
         f=open(filename, "rb")
         fileData = bytearray(f.read())
         f.close()
         
-        print "  Flashing %d bytes..." % len(fileData)
+        print("  Flashing %d bytes..." % len(fileData))
         if bl.write(fileData):
-            print "Flashing done!"
+            print("Flashing done!")
         else:
-            print "Flashing fail!"
+            print("Flashing fail!")
             raise Exception
     if action=="verify" or action=="flash":
     
-        print "Verifying:"
+        print("Verifying:")
         if nargs>0:
             filename = args[0]
         else:
-            print "  Error: A file name must be specified"
+            print("  Error: A file name must be specified")
             raise Exception()
         
-        print "  Reading %s..." % filename
+        print("  Reading %s..." % filename)
         f=open(filename, "rb")
         fileData = bytearray(f.read())
         f.close()
         
-        print "  Reading %d bytes from the flash..." % len(fileData)
+        print("  Reading %d bytes from the flash..." % len(fileData))
         flashData = bl.read(0, len(fileData))
         
         fail = False
         for i in range(0, len(fileData)):
             if fileData[i] != flashData[i]:
-                print "Verification failed at byte %d (expected 0x%02X, read 0x%02X)!"%(i, fileData[i], flashData[i])
+                print("Verification failed at byte %d (expected 0x%02X, read 0x%02X)!"%(i, fileData[i], flashData[i]))
                 fail=True
                 break
         
         if not fail:
-            print "Verification succeded!" 
+            print("Verification succeded!")
         
 #except Exception:
 #    pass
