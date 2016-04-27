@@ -41,7 +41,7 @@
 #define CMD_REUSE_TX_PL 0xE3
 #define CMD_RX_PL_WID 0x60
 #define CMD_W_ACK_PAYLOAD(P)  (0xA8|(P&0x0F))
-#define CMD_W_TX_PAYLOAD_NO_ACK 0xD0
+#define CMD_W_TX_PAYLOAD_NO_ACK 0xB0
 #define CMD_NOP 0xFF
 
 //Usefull macro
@@ -119,8 +119,8 @@ void radioInit(enum radioMode_e mode)
 
   //Wait a little while for the radio to be rdy
   for(i=0;i<1000;i++);
-  //Enable the dynamic packet size and the ack payload
-  radioWriteReg(REG_FEATURE, 0x06);
+  //Enable dynamic packet size, ack payload, and NOACK command
+  radioWriteReg(REG_FEATURE, 0x07);
   radioWriteReg(REG_DYNPD, 0x01);
 
   //Set the default radio parameters
