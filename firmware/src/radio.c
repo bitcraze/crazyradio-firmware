@@ -316,11 +316,18 @@ unsigned char radioSendPacket(__xdata char *payload, char len,
 //Send a packet and don't wait for the Acknoledge
 void radioSendPacketNoAck(__xdata char *payload, char len)
 {
+  char status = 0;
   //Wait for the TX fifo not to be full
-  while((radioNop()&0x01) != 0);
+  // while((radioNop()&0x01) != 0);
 
   //Send the packet
   radioTxPacketNoAck(payload, len);
+
+  //Wait for something to happen
+  while(((status=radioNop())&0x70) == 0);
+
+  // Clear the flags
+  radioWriteReg(REG_STATUS, 0x70);
 
   //Nothing to wait for, the packet is 'just' sent!
 }
