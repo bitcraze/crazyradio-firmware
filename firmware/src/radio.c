@@ -317,8 +317,6 @@ unsigned char radioSendPacket(__xdata char *payload, char len,
 void radioSendPacketNoAck(__xdata char *payload, char len)
 {
   char status = 0;
-  //Wait for the TX fifo not to be full
-  // while((radioNop()&0x01) != 0);
 
   //Send the packet
   radioTxPacketNoAck(payload, len);
@@ -328,8 +326,6 @@ void radioSendPacketNoAck(__xdata char *payload, char len)
 
   // Clear the flags
   radioWriteReg(REG_STATUS, 0x70);
-
-  //Nothing to wait for, the packet is 'just' sent!
 }
 
 //Raw registers update (for internal use)
