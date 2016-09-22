@@ -7,9 +7,10 @@ Crazyradio and the USB protocol used.
 
 ## Folders content:
 - firmware: The firmware source code
-- nrfProg:  SPI programmer that uses jtagkey USB addapter
-- usb_tools: Python scripts to reset and bootload Crazyradio from command line
-- lib: Software libraries to use Crazyradio with Pyton
+- nrfProg:  SPI programmer that uses jtagkey USB adapter
+- usbtools: Python scripts to reset and bootload Crazyradio from command line
+- lib: Software libraries to use Crazyradio with Python
+- fix_bootloader: Script to revive a Crazyradio
 
 ## Building the firmware
 Requirement:
@@ -38,3 +39,15 @@ make
 ```
 make CRPA=1
 ```
+
+## Flashing the Firmware
+
+To flash the firmware run the following from the firmware directory:
+
+```
+python ../usbtools/launchBootloader.py
+python ../usbtools/nrfbootload.py flash bin/cradio.bin
+```
+
+After flashing successfully, you need to replug the Crazyradio.
+More details are in the [wiki](https://wiki.bitcraze.io/projects:crazyradio:programming).

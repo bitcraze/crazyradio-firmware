@@ -1,5 +1,5 @@
-Bootloader fix scrips
-=====================
+Bootloader fix scripts
+======================
 
 This folder contains script to fix the Crazyradio bootloader via SPI in case
 it becomes impossible to start the USB bootloader again (this can happen if you
