@@ -27,7 +27,7 @@
 #include "usbDescriptor.h"
 
 /* Device descriptor */
-__code const char usbDeviceDescriptor[] = {
+__code const unsigned char usbDeviceDescriptor[] = {
   18,                 //bLength
   DEVICE_DESCRIPTOR,  //bDescriptorType
   0x00, 0x02,         //bcdUSB, usb 2.0
@@ -46,7 +46,7 @@ __code const char usbDeviceDescriptor[] = {
 
 //The only configuration descriptor
 //Monolitique implementation to ease the code development
-__code const char usbConfigurationDescriptor[57] = {
+__code const unsigned char usbConfigurationDescriptor[57] = {
   /***** Configuration descriptor ******/
   9,                         //bLength
   CONFIGURATION_DESCRIPTOR,  //bDescriptorType
@@ -116,7 +116,7 @@ __code const char usbConfigurationDescriptor[57] = {
 
 #ifdef PPM_JOYSTICK
 //HID report descriptor for PPM Joystick
-__code const char usbHidReportDescriptor[32] = {
+__code const unsigned char usbHidReportDescriptor[32] = {
     0x05, 0x01,                    // USAGE_PAGE (Generic Desktop)
     0x09, 0x04,                    // USAGE (Joystick)
     0xa1, 0x01,                    // COLLECTION (Application)

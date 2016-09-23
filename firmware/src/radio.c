@@ -57,11 +57,11 @@ void radioUpdateRfSetup(void);
 
 //Chached state of the radio
 static __xdata struct {
-  char dataRate;
-  char power;
-  char arc;
-  char ard;
-  char contCarrier;
+  unsigned char dataRate;
+  unsigned char power;
+  unsigned char arc;
+  unsigned char ard;
+  unsigned char contCarrier;
 } radioConf = {
   /*.dataRate =*/ DATA_RATE_2M,
   /*.power =*/ RADIO_POWER_0dBm,
@@ -78,7 +78,7 @@ static __code unsigned char ardStep[3][6] = { {0, 0, 8, 16, 24, 32}, //250Kps
 
 static __code unsigned char setupDataRate[] = {0x20, 0x00, 0x08};
 
-char spiRadioSend(char dt)
+char spiRadioSend(unsigned char dt)
 {
   //Send the data
   RFDAT = dt;
