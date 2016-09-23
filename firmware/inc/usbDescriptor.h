@@ -40,9 +40,9 @@
 
 
 //Descriptors instanciated in usbDescriptor.c
-extern __code const char usbDeviceDescriptor[];
-extern __code const char usbConfigurationDescriptor[57];
-extern __code const char usbHidReportDescriptor[32];
+extern __code const unsigned char usbDeviceDescriptor[];
+extern __code const unsigned char usbConfigurationDescriptor[57];
+extern __code const unsigned char usbHidReportDescriptor[32];
 extern __code char usbStringDescriptor0[4];
 extern __code char usbStringDescriptor1[18];
 extern __code char usbStringDescriptor2[];
