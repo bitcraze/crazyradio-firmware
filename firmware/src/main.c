@@ -335,19 +335,21 @@ void legacyRun()
   //Send a packet if something is received on the USB
   if (!(OUT1CS&EPBSY) && !contCarrier)
   {
-
-    //Deactivate the USB IN
-    IN1CS = 0x02;
-
-    //Fetch the USB data size. Limit it to 32
+    //Fetch the USB data size. Limit it to 64
     tlen = OUT1BC;
-    if (tlen>32) tlen=32;
+    if (tlen>64) tlen=64;
 
-    //Send the packet
+    // copy data
     memcpy(tbuffer, OUT1BUF, tlen);
+
+    //reactivate OUT1
+    OUT1BC=BCDUMMY;
 
     if (needAck)
     {
+      // Limit data size to 32
+      if (tlen>32) tlen=32;
+
       status = radioSendPacket(tbuffer, tlen, rbuffer, &rlen);
 
       //Set the Green LED on success and the Red one on failure
@@ -359,9 +361,6 @@ void legacyRun()
         ledSet(LED_GREEN, true);
       else
         ledSet(LED_RED, true);
-      //reactivate OUT1
-      OUT1BC=BCDUMMY;
-
 
       //Prepare the USB answer, state and ack data
       ack=status?1:0;
@@ -370,6 +369,10 @@ void legacyRun()
       if (radioGetRpd()) ack |= 0x02;
       ack |= radioGetTxRetry()<<4;
       }
+
+      //Deactivate the USB IN
+      IN1CS = 0x02;
+
       IN1BUF[0]=ack;
       if(!(status&BIT_TX_DS)) rlen=0;
       memcpy(IN1BUF+1, rbuffer, rlen);
@@ -378,14 +381,20 @@ void legacyRun()
     }
     else
     {
-      radioSendPacketNoAck(tbuffer, tlen);
+      if (tlen <= 32) {
+        radioSendPacketNoAck(tbuffer, tlen);
+      } else {
+        // If we receive a USB packet > 32 bytes, we assume that the user wants
+        // to broadcast two packets of the same size. We can not transmit the
+        // size because a USB request is limited to 64 bytes and each CRTP
+        // packet could be up to 32 bytes.
+        radioSendPacketNoAck(tbuffer, tlen / 2);
+        radioSendPacketNoAck(tbuffer + tlen / 2, tlen / 2);
+      }
 
       ledTimeout = 2;
       ledSet(LED_GREEN | LED_RED, false);
       ledSet(LED_GREEN, true);
-
-      //reactivate OUT1
-      OUT1BC=BCDUMMY;
     }
   }
 }
