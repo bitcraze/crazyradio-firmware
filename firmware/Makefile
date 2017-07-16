@@ -1,6 +1,7 @@
 
 #Compiler
 SDCC ?= sdcc
+SDAS8051 ?= sdas8051
 
 NRFPROG ?= ../nrfProg/nrfProg
 
@@ -11,7 +12,7 @@ LDFLAGS = --xram-loc 0x8000 --xram-size 2048 --model-small
 
 VPATH += src/ bin/
 
-OBJS = main.rel radio.rel usb.rel usbDescriptor.rel led.rel utils.rel
+OBJS = main.rel radio.rel usb.rel usbDescriptor.rel led.rel utils.rel crtxinit.rel
 
 ifdef PPM_JOYSTICK
 ifneq ($(PPM_JOYSTICK), 0)
@@ -63,6 +64,9 @@ reset:
 # General targets
 %.rel: %.c
 	$(SDCC) $(CFLAGS) -c $< -o bin/$@
+
+%.rel: %.asm
+	$(SDAS8051) -plosgff -o bin/$@ $<
 
 bin/:
 	mkdir -p bin
