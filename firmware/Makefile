@@ -6,8 +6,8 @@ NRFPROG ?= ../nrfProg/nrfProg
 
 VERIFIED ?= 0
 
-CFLAGS = -Iinc/ --model-large --std-sdcc99
-LDFLAGS = --xram-loc 0x8000 --xram-size 2048 --model-large
+CFLAGS = -Iinc/ --model-small --std-sdcc99
+LDFLAGS = --xram-loc 0x8000 --xram-size 2048 --model-small
 
 VPATH += src/ bin/
 
