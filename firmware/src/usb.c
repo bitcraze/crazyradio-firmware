@@ -34,6 +34,8 @@
 
 #define MIN(A,B) (((int)A<(int)B)?A:B)
 
+#pragma nooverlay
+
 //Local functions (USB ISR ...)
 void usbBulkOutIsr(char ep);
 void usbBulkInIsr(char ep);
@@ -124,7 +126,7 @@ void usbWuIsr() __interrupt(11)
 
 //USB interruption vector
 //Call the interruption routine (if existing) and clear the right flag
-void usbIsr() __interrupt(12)  __using(1)
+void usbIsr() __interrupt(12)
 {
   //Switch on the USB interruption vector.
   switch (IVEC) {

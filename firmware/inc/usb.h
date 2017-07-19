@@ -44,7 +44,7 @@ usbState_t usbGetState();
 
 //USB interruptions
 void usbWuIsr() __interrupt(11);
-void usbIsr() __interrupt(12)  __using(1);
+void usbIsr() __interrupt(12);
 
 //USB controll structure
 struct controllStruct {

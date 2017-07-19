@@ -1,6 +1,6 @@
 /**
- *    ||          ____  _ __                           
- * +------+      / __ )(_) /_______________ _____  ___ 
+ *    ||          ____  _ __
+ * +------+      / __ )(_) /_______________ _____  ___
  * | 0xBC |     / __  / / __/ ___/ ___/ __ `/_  / / _ \
  * +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
  *  ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
@@ -41,6 +41,7 @@ void ledInit(unsigned char redpin, unsigned char greenpin)
   P0 &= ~((1<<redPin) | (1<<greenPin));
 }
 
+#pragma nooverlay
 void ledSet(led_t led, bool value)
 {
   if(led&LED_RED)
@@ -51,7 +52,7 @@ void ledSet(led_t led, bool value)
       P0 &= ~(1<<redPin);
   }
 
-  if (led & LED_GREEN) 
+  if (led & LED_GREEN)
   {
     if (value)
       P0 |= (1<<greenPin);
