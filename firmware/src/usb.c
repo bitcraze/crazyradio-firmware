@@ -1,6 +1,6 @@
 /**
- *    ||          ____  _ __                           
- * +------+      / __ )(_) /_______________ _____  ___ 
+ *    ||          ____  _ __
+ * +------+      / __ )(_) /_______________ _____  ___
  * | 0xBC |     / __  / / __/ ___/ ___/ __ `/_  / / _ \
  * +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
  *  ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
@@ -54,10 +54,10 @@ static bool vendorSetup=false;
 dataFlow_t inflow[1];
 //dataFlow_t outflow[1];
 
-void usbInit() 
+void usbInit()
 {
   long i;
-  
+
   state = POWERED;
 
   //Wake up the USB peripheral
@@ -76,15 +76,15 @@ void usbInit()
   OUT_IEN=0;
   INISOVAL=0;    //ISO EP
   OUTISOVAL=0;
-  
+
   //Enable the USB reset and suspend interrupts
   USBIEN = URESIE | SUSPIE;
-  
+
   //Clear any pending interruption flags
   IN_IRQ = 0xFF;
   OUT_IRQ = 0xFF;
   USBIRQ = 0xFF;
-  
+
   //Address pointers (EP0, EP1, EP2 and EP3. Each 64Bytes buffer)
   //This configuration is using the full 512Bytes buffer (no room for double
   //buffering&co). The configuration is explained p.186 of the documentation
@@ -95,18 +95,18 @@ void usbInit()
   BIN1ADDR  = 32;
   BIN2ADDR  = 64;
   BIN3ADDR  = 96;
-  
+
   //Enable global USB interrupt
-  IEN1 |= 0x18;  
+  IEN1 |= 0x18;
 }
 
 void usbDeinit()
 {
   state = POWERED; //Deactivate all mechanism
-  
+
   //Disable interruptions
   IEN1 &= (~0x18);
-  
+
   //Suspend the USB peripherical
   USB_SUSPEND = 1;
 }
@@ -138,7 +138,7 @@ void usbIsr() __interrupt(12)  __using(1)
       usbClassIsr();
     else //If it is a reserved control, it should be dismissed
       EP0CS = EP0STALL; //Stall to error
-    
+
     USBIRQ = SUDAVIR;
     break;
   case IRQ_SOF:
@@ -156,21 +156,21 @@ void usbIsr() __interrupt(12)  __using(1)
     USBIRQ = SUSPIR;
     break;
   case IRQ_USBRESET:
-    //Switch to DEFAULT state 
+    //Switch to DEFAULT state
     state = DEFAULT;
-    
+
     // Activate EP0 only
     INBULKVAL = IN0VAL;
     OUTBULKVAL= OUT0VAL;
-    
+
     //Make sure that EP0 OUT is ready to receive
     OUT0BC = BCDUMMY;
-    
+
     //Enable the EP0 (only) and Setup interrupts
     IN_IEN = IN0IE;
     OUT_IEN = OUT0IE;
     USBIEN |= SUDAVIE | SUTOKIE;
-    
+
     USBIRQ = URESIR;
     break;
   case IRQ_EP0IN:
@@ -210,7 +210,7 @@ void usbIsr() __interrupt(12)  __using(1)
     IN_IRQ = IN5IR;
     break;
   case IRQ_EP5OUT:
-    OUT_IRQ = OUT5IR;  
+    OUT_IRQ = OUT5IR;
     break;
   }
 }
@@ -220,7 +220,7 @@ void usbIsr() __interrupt(12)  __using(1)
 //EP0 only implementation- Drop every packet
 void usbBulkOutIsr(char ep) {
   ep;
-  return;  
+  return;
 }
 
 //Automatic bulk in irq
@@ -229,13 +229,13 @@ void usbBulkOutIsr(char ep) {
 void usbBulkInIsr(char ep)
 {
   unsigned char lenToSend = (inflow[ep].len<64)?inflow[ep].len:64;
-  
+
   if(inflow[ep].rdy)
   {
     usbBulkSend(ep, inflow[ep].buffer+inflow[ep].ptr, lenToSend);
 
     inflow[ep].len-=lenToSend;
-    inflow[ep].ptr+=lenToSend; 
+    inflow[ep].ptr+=lenToSend;
 
     if(inflow[ep].len == 0 && lenToSend != 64)
     {
@@ -243,7 +243,7 @@ void usbBulkInIsr(char ep)
       inflow[ep].ptr = 0;
     }
   }
-  
+
   //OUT0BC = 1; //Reactivate the EP0 as listen
   return;
 }
@@ -264,13 +264,13 @@ void usbSetupIsr()
       inflow[0].len = MIN(dLength, inflow[0].buffer[0]);
       inflow[0].ptr = 0;
       inflow[0].rdy = 1;
-      
+
       //Initiate the in transfert
       EP0CS = HSNAK;
       usbBulkInIsr(0);
       return;
     }
-    
+
     //Get String descriptor request
     if (SETUPBUF[1] == GET_DESCRIPTOR && SETUPBUF[3] == STRING_DESCRIPTOR)
     {
@@ -282,26 +282,28 @@ void usbSetupIsr()
         inflow[0].buffer = usbStringDescriptor1;
       else if (SETUPBUF[2]==2)
         inflow[0].buffer = usbStringDescriptor2;
+      else if (SETUPBUF[2]==0xEE)
+        inflow[0].buffer = usbStringDescriptorMsft;
       else if (SETUPBUF[2]==0x1d) {
         usbSendIdString();
-        
+
         EP0CS = HSNAK;
         return;
       } else {
         EP0CS = EP0STALL; //Stall to error
         return;
       }
-      
+
       inflow[0].len = MIN(dLength, inflow[0].buffer[0]);
       inflow[0].ptr = 0;
       inflow[0].rdy = 1;
-      
+
       //Initiate the in transfert
       EP0CS = HSNAK;
       usbBulkInIsr(0);
       return;
     }
-    
+
     // Get Configuration descriptor request
     if(SETUPBUF[1] == GET_DESCRIPTOR && SETUPBUF[3] == CONFIGURATION_DESCRIPTOR)
     {
@@ -311,19 +313,19 @@ void usbSetupIsr()
       inflow[0].len = MIN(dLength, sizeof(usbConfigurationDescriptor));
       inflow[0].ptr = 0;
       inflow[0].rdy = 1;
-      
+
       //Initiate the in transfert
       EP0CS = HSNAK;
       usbBulkInIsr(0);
       return;
     }
 
-#ifdef PPM_JOYSTICK    
+#ifdef PPM_JOYSTICK
     // HID requests
     if(SETUPBUF[1] == GET_DESCRIPTOR && (SETUPBUF[3]&0xF0)==0x20)
     {
       unsigned short dLength = ((unsigned short)SETUPBUF[7]<<8) + ((unsigned short)SETUPBUF[6]<<0);
-      
+
       if(SETUPBUF[3] == HID_DESCRIPTOR) {
         inflow[0].buffer = usbConfigurationDescriptor+USB_HID_DESC_OFFSET;
         inflow[0].len = MIN(dLength, 9);
@@ -336,14 +338,14 @@ void usbSetupIsr()
       }
       inflow[0].ptr = 0;
       inflow[0].rdy = 1;
-      
+
       //Initiate the in transfert
       EP0CS = HSNAK;
       usbBulkInIsr(0);
       return;
     }
 #endif //PPM_JOYSTICK
-    
+
     //Set address
     if (setup->request == SET_ADDRESS)
     {
@@ -352,14 +354,14 @@ void usbSetupIsr()
       {
         //Switch to DEFAULT state if address==0
         state = DEFAULT;
-        
+
         // Activate EP0 only
         INBULKVAL = IN0VAL;
         OUTBULKVAL= OUT0VAL;
-        
+
         //Make sure that EP0 OUT is ready to receive
         OUT0BC = BCDUMMY;
-        
+
         //Enable the EP0 (only) and Setup interrupts
         IN_IEN = IN0IE;
         OUT_IEN = OUT0IE;
@@ -367,12 +369,12 @@ void usbSetupIsr()
       } else {
         state = ADDRESS;  //The device is now addressed
       }
-      
+
       EP0CS = HSNAK;
       return;
     }
   }
-  
+
   if (state >= ADDRESS)
   {
     //Set configration
@@ -382,44 +384,44 @@ void usbSetupIsr()
       if (setup->value == 0)
       {
         state = ADDRESS;
-        
+
         //Disable EPs
         INBULKVAL  &= ~(0x02 | 0x04);
         OUTBULKVAL &= ~(0x02);
-      
+
         //Disable interruptions
         OUT_IEN &= ~0x02;
         IN_IEN  &= ~0x02;
       } else {
         state = CONFIGURED;
-      
+
         //Enable the EP1 and EP2IN endpoints
         INBULKVAL  |= 0x02 | 0x04;
         OUTBULKVAL |= 0x02;
-      
+
         //Activate the interruption
         OUT_IEN |= 0x02;
         IN_IEN  |= 0x02;
         USBIEN  |= SOFIE;
       }
-      
+
       EP0CS = HSNAK;
       return;
     }
-    
+
     if (setup->request == GET_CONFIGURATION)
     {
       if (state == CONFIGURED)
         IN0BUF[0]=1;
       else
         IN0BUF[0]=0;
-      
+
       IN0BC=1;
-      
+
       EP0CS = HSNAK;
       return;
     }
-    
+
     if(SETUPBUF[1] == GET_STATUS)
     {
       if ((SETUPBUF[0] & REQUEST_RMASK) == REQUEST_ENDPOINT)
@@ -441,12 +443,12 @@ void usbSetupIsr()
             IN0BUF[0] = OUT3CS;
           else
             IN0BUF[0]=1;
-          
-          
-          
+
+
+
           IN0BUF[1]=0;
           IN0BC = 2; //2 bytes
-          
+
           EP0CS = HSNAK; //HSNACK dis
           return;
         }
@@ -460,11 +462,11 @@ void usbSetupIsr()
         IN0BC = 2; //2 bytes
 
         EP0CS = HSNAK; //HSNACK dis
-        return; 
+        return;
       }
     }
   }
-  
+
   if (state >= CONFIGURED)
   {
     if(SETUPBUF[1] == GET_INTERFACE)
@@ -474,9 +476,9 @@ void usbSetupIsr()
       IN0BC = 1;
 
       EP0CS |= HSNAK; //HSNACK dis
-      return;    
+      return;
     }
-    
+
     if(setup->request == CLEAR_FEATURE)
     {
       if (IS_ENDPOINT(setup->requestType) && (setup->value == ENDPOINT_HALT))
@@ -497,12 +499,12 @@ void usbSetupIsr()
           EP0CS = EP0STALL;
           return;
         }
-        
+
         EP0CS |= HSNAK; //HSNACK dis
-        return; 
+        return;
       }
     }
-    
+
     if(setup->request == SET_FEATURE)
     {
       if (IS_ENDPOINT(setup->requestType) && (setup->value == ENDPOINT_HALT))
@@ -523,23 +525,23 @@ void usbSetupIsr()
           EP0CS = EP0STALL;
           return;
         }
-        
+
         EP0CS |= HSNAK; //HSNACK dis
-        return; 
+        return;
       }
     }
-    
+
     if(setup->request == SET_FEATURE)
     {
-    
+
     }
   }
-  
+
   //Stall if nothing executed!
   EP0CS = EP0STALL; //Stall to error
 }
 
-void usbVendorIsr() 
+void usbVendorIsr()
 {
   vendorSetup = true;
 }
@@ -549,7 +551,7 @@ void usbClassIsr() {
   {
     ;
   }
-  
+
   EP0CS = EP0STALL;
 }
 
@@ -563,7 +565,7 @@ void usbBulkSend(unsigned char ep, char* buff, unsigned char len) {
   IN0BC = len;
 }
 
-static __code char bin2hex[] = {'0', '1', '2', '3', '4', '5', '6', '7', 
+static __code char bin2hex[] = {'0', '1', '2', '3', '4', '5', '6', '7',
                                 '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 
 //Send the chip ID as a standard USB string on EP0IN.
@@ -571,10 +573,10 @@ static __code char bin2hex[] = {'0', '1', '2', '3', '4', '5', '6', '7',
 void usbSendIdString(void)
 {
   int i=0;
-  
+
   IN0BUF[0] = 22;
   IN0BUF[1] = STRING_DESCRIPTOR;
-  
+
   for (i=0; i<5; i++)
   {
     IN0BUF[2+(i*4)] = bin2hex[(chip_id[i]>>4)&0x0F];
@@ -582,7 +584,7 @@ void usbSendIdString(void)
     IN0BUF[4+(i*4)] = bin2hex[chip_id[i]&0x0F];
     IN0BUF[5+(i*4)] = 0;
   }
-  
+
   IN0BC = 22;
 }
 
@@ -596,6 +598,20 @@ bool usbIsVendorSetup(void)
     return true;
   }
   return false;
+}
+
+void usbHandleMsftFeatureIdDescriptor()
+{
+  unsigned short dLength = ((unsigned short)SETUPBUF[7]<<8) + ((unsigned short)SETUPBUF[6]<<0);
+  //put the descriptor in the inflow structure
+  inflow[0].buffer = usbMsftFeatureIdDescriptor;
+  inflow[0].len = MIN(dLength, inflow[0].buffer[0]);
+  inflow[0].ptr = 0;
+  inflow[0].rdy = 1;
+
+  //Initiate the in transfert
+  EP0CS = HSNAK;
+  usbBulkInIsr(0);
 }
 
 __xdata char * usbGetSetupOutData(void);

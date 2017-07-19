@@ -1,6 +1,6 @@
 /**
- *    ||          ____  _ __                           
- * +------+      / __ )(_) /_______________ _____  ___ 
+ *    ||          ____  _ __
+ * +------+      / __ )(_) /_______________ _____  ___
  * | 0xBC |     / __  / / __/ ___/ ___/ __ `/_  / / _ \
  * +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
  *  ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
@@ -46,9 +46,11 @@ extern __code const unsigned char usbHidReportDescriptor[32];
 extern __code char usbStringDescriptor0[4];
 extern __code char usbStringDescriptor1[18];
 extern __code char usbStringDescriptor2[];
+extern __code char usbStringDescriptorMsft[18];
+
+extern __code char usbMsftFeatureIdDescriptor[40];
 
 //Offset from the beginning of the configration decr. to the HID descr.
 #define USB_HID_DESC_OFFSET 41
 
 #endif /* __USB_DESCRIPTOR_H__ */
-

@@ -1,6 +1,6 @@
 /**
- *    ||          ____  _ __                           
- * +------+      / __ )(_) /_______________ _____  ___ 
+ *    ||          ____  _ __
+ * +------+      / __ )(_) /_______________ _____  ___
  * | 0xBC |     / __  / / __/ ___/ ___/ __ `/_  / / _ \
  * +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
  *  ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
@@ -57,6 +57,7 @@ struct controllStruct {
 
 //Vendor setup request handling
 bool usbIsVendorSetup(void);
+void usbHandleMsftFeatureIdDescriptor(void);
 __xdata struct controllStruct * usbGetSetupPacket(void);
 void usbAckSetup(void);
 void usbDismissSetup(void);
@@ -110,6 +111,7 @@ typedef struct {
 #define SET_CONT_CARRIER  0x20
 #define CHANNEL_SCANN     0x21
 #define SET_MODE          0x22
+#define MSFT_ID_FEATURE_DESCRIPTOR 0xFE
 #define LAUNCH_BOOTLOADER 0xFF
 
 //CMD mode commands
@@ -137,4 +139,3 @@ typedef struct {
 #define ERROR_MALFORMED_CMD 1
 
 #endif /* __USB_H__ */
-

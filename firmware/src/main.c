@@ -297,6 +297,11 @@ void handleUsbVendorSetup()
       usbAckSetup();
       return;
     }
+    else if (setup->index == 0x0004 && setup->request == MSFT_ID_FEATURE_DESCRIPTOR)
+    {
+      usbHandleMsftFeatureIdDescriptor();
+      return;
+    }
   }
 
   //Stall in error if nothing executed!

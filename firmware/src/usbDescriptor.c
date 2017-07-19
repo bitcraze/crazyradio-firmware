@@ -26,6 +26,8 @@
 
 #include "usbDescriptor.h"
 
+#include "usb.h"
+
 /* Device descriptor */
 __code const unsigned char usbDeviceDescriptor[] = {
   18,                 //bLength
@@ -171,3 +173,24 @@ __code char usbStringDescriptor2[50] = {
 };
 #endif
 
+// Microsoft OS String Descriptor
+__code char usbStringDescriptorMsft[18] = {
+  18,
+  STRING_DESCRIPTOR,
+  'M',0, 'S',0, 'F',0, 'T',0, '1',0, '0',0, '0',0,
+  (char)MSFT_ID_FEATURE_DESCRIPTOR, 0x00
+};
+
+// Microsoft Compatible ID Feature Descriptor
+__code char usbMsftFeatureIdDescriptor[40] = {
+  0x28, 0x00, 0x00, 0x00,                         // Descriptor length (40)
+  0x00, 0x01,                                     // Version ('1.0')
+  0x04, 0x00,                                     // Compatibility ID Descriptor index (0x0004)
+  0x01,                                           // Number of sections (1)
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,       // RESERVED
+  0x00,                                           // Interface Number (Interface #0)
+  0x01,                                           // RESERVED
+  'L', 'I', 'B', 'U', 'S', 'B', '0', 0x00,        // Compatible ID ("LIBUSB0\0", should be replaced by "WINUSB\0\0" when cflib is updated)
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // Sub-Compatible ID (Unused)
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00,             // RESERVED
+};
