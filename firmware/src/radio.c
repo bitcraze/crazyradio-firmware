@@ -1,6 +1,6 @@
 /**
- *    ||          ____  _ __                           
- * +------+      / __ )(_) /_______________ _____  ___ 
+ *    ||          ____  _ __
+ * +------+      / __ )(_) /_______________ _____  ___
  * | 0xBC |     / __  / / __/ ___/ ___/ __ `/_  / / _ \
  * +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
  *  ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
@@ -84,11 +84,11 @@ char spiRadioSend(unsigned char dt)
   RFDAT = dt;
   //Clear the flag
   RFRDY = 0;
-  
+
   //Wait for the data to be sent
   while(!RFRDY);
   RFRDY=0;
-  
+
   //Return the received data
   return RFDAT;
 }
@@ -132,7 +132,7 @@ void radioDeinit()
 {
   //Deenergise the radio
   radioWriteReg(REG_CONFIG, 0x00);
-  
+
   //Unclock the radio and SPI
   RFCON = 0x00;  //Radio unclocked
   RFCTL = 0x00;  //SPI disable
@@ -143,57 +143,57 @@ void radioDeinit()
 char radioNop()
 {
   char status;
-  
+
   RADIO_EN_CS();
   status = spiRadioSend(CMD_NOP);
   RADIO_DIS_CS();
-  
+
   return status;
 }
 
 char radioFlushTx()
 {
   char status;
-  
+
   RADIO_EN_CS();
   status = spiRadioSend(CMD_FLUSH_TX);
   RADIO_DIS_CS();
-  
+
   return status;
 }
 
 char radioFlushRx()
 {
   char status;
-  
+
   RADIO_EN_CS();
   status = spiRadioSend(CMD_FLUSH_RX);
   RADIO_DIS_CS();
-  
+
   return status;
 }
 
 char radioReadReg(char addr)
 {
   char value;
-  
+
   RADIO_EN_CS();
   spiRadioSend(CMD_R_REG | (addr&0x1F));
   value = spiRadioSend(0xA5);
   RADIO_DIS_CS();
-  
+
   return value;
 }
 
 char radioWriteReg(char addr, char value)
 {
   char status;
-  
+
   RADIO_EN_CS();
   status = spiRadioSend(CMD_W_REG | (addr&0x1F));
   spiRadioSend(value);
   RADIO_DIS_CS();
-  
+
   return value;
 }
 
@@ -208,10 +208,10 @@ void radioTxPacket(__xdata char *payload, char len)
   for(i=0;i<len;i++)
     spiRadioSend(payload[i]);
   RADIO_DIS_CS();
-  
+
   //Pulse CE
   CE_PULSE();
-  
+
   return;
 }
 
@@ -226,10 +226,10 @@ void radioTxPacketNoAck(__xdata char *payload, char len)
   for(i=0;i<len;i++)
     spiRadioSend(payload[i]);
   RADIO_DIS_CS();
-  
+
   //Pulse CE
   CE_PULSE();
-  
+
   return;
 }
 
@@ -260,8 +260,8 @@ char radioRxPacket(__xdata char *payload)
   RADIO_EN_CS();
   spiRadioSend(CMD_RX_PL_WID);
   len = spiRadioReceive();
-  RADIO_DIS_CS();  
-  
+  RADIO_DIS_CS();
+
   if (len>0 && len<33)
   {
     //Read the packet from the RX buffer
@@ -273,43 +273,43 @@ char radioRxPacket(__xdata char *payload)
   } else {
     len=0;
   }
-  
+
   //Pulse CE
   //CE_PULSE();
-  
+
   return len;
 }
 
 //Send a packet and receive the ACK
 //Return true in case of success.
 //Polling implementation
-unsigned char radioSendPacket(__xdata char *payload, char len, 
+unsigned char radioSendPacket(__xdata char *payload, char len,
                               __xdata char *ackPayload, char *ackLen)
 {
   char status = 0;
-  
+
   //Send the packet
   radioTxPacket(payload, len);
   //Wait for something to happen
   while(((status=radioNop())&0x70) == 0);
-  
+
   // Clear the flags
   radioWriteReg(REG_STATUS, 0x70);
-  
+
   //Return FALSE if the packet has not been transmited
   if (status&BIT_MAX_RT) {
     radioFlushTx();
     return 0;
   }
-    
+
   //Receive the ackPayload if any has been received
   if (status&BIT_RX_DR)
     *ackLen = radioRxPacket(ackPayload);
-  else 
+  else
     *ackLen = 0;
-  
+
   radioFlushRx();
-  
+
   return status&BIT_TX_DS;
 }
 
@@ -333,7 +333,7 @@ void radioUpdateRetr()
 {
   char ard=0;
   unsigned char nbytes;
-  
+
   if (radioConf.ard & ARD_PLOAD)
   {
     nbytes = ((radioConf.ard&0x7F)>32)?32:(radioConf.ard&0x7F);
@@ -341,34 +341,34 @@ void radioUpdateRetr()
       continue;
   } else
     ard = radioConf.ard & 0x0F;
-  
-  radioWriteReg(REG_SETUP_RETR, (ard<<4) | (radioConf.arc&0x0F)); 
+
+  radioWriteReg(REG_SETUP_RETR, (ard<<4) | (radioConf.arc&0x0F));
 }
 
 void radioUpdateRfSetup()
 {
   unsigned char setup=0;
-  
+
   setup = setupDataRate[radioConf.dataRate];
   setup |= radioConf.power<<1;
-  
+
   if (radioConf.contCarrier)
     setup |= 0x90;
-  
+
   radioWriteReg(REG_RF_SETUP, setup);
 }
 
 //Set the radio channel.
-void radioSetChannel(char channel)
+void radioSetChannel(signed char channel)
 {
   //Test the input
   if(channel<0 || channel>125)
     return;
-   
+
   //Change the channel
   RADIO_DIS_CE();
   radioWriteReg(REG_RF_CH, channel);
-  
+
   //CE is continously activated if in continous carrier mode
   if(radioConf.contCarrier)
     RADIO_EN_CE();
@@ -379,9 +379,9 @@ void radioSetDataRate(unsigned char dr)
 {
   if (dr>=3)
     return;
-  
+
   radioConf.dataRate = dr;
-  
+
   radioUpdateRfSetup();
   radioUpdateRetr();
 }
@@ -394,32 +394,32 @@ char radioGetDataRate()
 void radioSetPower(char power)
 {
   radioConf.power = power&0x03;
-  
+
   radioUpdateRfSetup();
 }
 
 void radioSetArd(char ard)
 {
   radioConf.ard = ard;
-  
-  radioUpdateRetr(); 
+
+  radioUpdateRetr();
 }
 
 void radioSetArc(char arc)
 {
   radioConf.arc = arc;
-  
+
   radioUpdateRetr();
 }
 
 void radioSetContCarrier(bool contCarrier)
 {
   radioConf.contCarrier = contCarrier?1:0;
-  
+
   RADIO_DIS_CE();
-  
+
   radioUpdateRfSetup();
-  
+
   if(contCarrier)
     RADIO_EN_CE();
 }

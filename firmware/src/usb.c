@@ -48,8 +48,8 @@ void usbSendIdString(void);
 static usbState_t state = POWERED;
 static unsigned char configuration;
 static __bit launchBootloader = 0;
-static char radioChannel = -1;
-static char dataRate = -1;
+static signed char radioChannel = -1;
+static signed char dataRate = -1;
 static bool vendorSetup=false;
 
 //Dataflow in and out. One per endpoint that needs dataflow.

@@ -1,6 +1,6 @@
 /**
- *    ||          ____  _ __                           
- * +------+      / __ )(_) /_______________ _____  ___ 
+ *    ||          ____  _ __
+ * +------+      / __ )(_) /_______________ _____  ___
  * | 0xBC |     / __  / / __/ ___/ ___/ __ `/_  / / _ \
  * +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
  *  ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
@@ -41,7 +41,7 @@ void radioDeinit();
 unsigned char radioSendPacket(__xdata char *payload, char len,
                               __xdata char *ackPayload, char *ackLen);
 void radioSendPacketNoAck(__xdata char *payload, char len);
-void radioSetChannel(char channel);
+void radioSetChannel(signed char channel);
 void radioSetDataRate(unsigned char dr);
 char radioGetDataRate();
 void radioSetAddress(__xdata char* address);
@@ -70,5 +70,3 @@ char radioRxPacket(__xdata char *payload);
 #define ARD_PLOAD 0x80
 
 #endif /* __RADIO_H__ */
-
-
