@@ -221,9 +221,7 @@ class Crazyradio:
         _send_vendor_setup(self.handle, SET_MODE, mode, 0, ())
 
     def _has_fw_scan(self):
-        #return self.version >= 0.5
-        # FIXME: Mitigation for Crazyradio firmware bug #9
-        return False
+        return self.version >= 0.5
 
     def scan_selected(self, selected, packet):
         result = ()
@@ -236,13 +234,17 @@ class Crazyradio:
 
         return result
 
-
     def scan_channels(self, start, stop, packet):
         if self._has_fw_scan():  # Fast firmware-driven scann
             _send_vendor_setup(self.handle, SCANN_CHANNELS, start, stop,
                                packet)
-            return tuple(_get_vendor_setup(self.handle, SCANN_CHANNELS,
-                                           0, 0, 64))
+            results = tuple(_get_vendor_setup(self.handle, SCANN_CHANNELS,
+                                              0, 0, 64))
+            # Workaround for USB bug, see issue #9
+            if len(results) == 64:
+                return ()
+            else:
+                return results
         else:  # Slow PC-driven scann
             result = tuple()
             for i in range(start, stop + 1):
