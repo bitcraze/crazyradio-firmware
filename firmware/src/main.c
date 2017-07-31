@@ -69,6 +69,8 @@ static volatile unsigned char mode = MODE_LEGACY;
 
 void main()
 {
+  CKCON = 2;
+
   mode = MODE_LEGACY;
 
   //Init the chip ID
@@ -319,6 +321,9 @@ void launchBootloader()
 
   //Deinitialise the USB
   usbDeinit();
+
+  //Reset memory wait-state to default
+  CKCON = 1;
 
   //Deinitialise the radio
   radioDeinit();

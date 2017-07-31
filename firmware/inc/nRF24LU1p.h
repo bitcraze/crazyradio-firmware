@@ -27,6 +27,9 @@
 #ifndef __NRF24LU1P_H__
 #define __NRF24LU1P_H__
 
+//system registers
+__sfr __at (0x8E) CKCON;
+
 //Radio SPI regs
 __sfr __at (0xE5) RFDAT;
 __sfr __at (0xE6) RFCTL;
