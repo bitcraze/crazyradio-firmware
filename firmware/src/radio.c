@@ -30,6 +30,7 @@
 
 #include "radio.h"
 #include "usb.h"
+#include "pinout.h"
 
 /* nRF24L SPI commands */
 #define CMD_R_REG 0x00
@@ -98,9 +99,20 @@ char spiRadioReceive()
   return spiRadioSend(0x00);
 }
 
+void setRxen() {
+    //CRPA RXEN
+    #ifdef CRPA
+        // Enable LNA (PA RX)
+        P0DIR &= ~( 1 << CRPA_PA_RXEN );
+        P0 |= ( 1 << CRPA_PA_RXEN );
+    #endif
+
+}
+
 void radioInit(enum radioMode_e mode)
 {
   int i;
+
   // Clock the radio and enable the radio SPI
   RFCON = 0x06;
   RFCTL = 0x10;  //SPI enable @8MHz
@@ -118,7 +130,7 @@ void radioInit(enum radioMode_e mode)
   }
 
   //Wait a little while for the radio to be rdy
-  for(i=0;i<1000;i++);
+  for( i = 0; i < 1000; i++ );
   //Enable dynamic packet size, ack payload, and NOACK command
   radioWriteReg(REG_FEATURE, 0x07);
   radioWriteReg(REG_DYNPD, 0x01);

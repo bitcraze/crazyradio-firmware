@@ -7,19 +7,12 @@ NRFPROG ?= ../nrfProg/nrfProg
 
 VERIFIED ?= 0
 
-CFLAGS = -Iinc/ --model-small --std-sdcc99
+CFLAGS = -Iinc/ --model-small --std-sdcc99 -DPPM_JOYSTICK
 LDFLAGS = --xram-loc 0x8000 --xram-size 2048 --model-small
 
 VPATH += src/ bin/
 
-OBJS = main.rel radio.rel usb.rel usbDescriptor.rel led.rel utils.rel crtxinit.rel
-
-ifdef PPM_JOYSTICK
-ifneq ($(PPM_JOYSTICK), 0)
-  OBJS += ppm.rel
-  CFLAGS += -DPPM_JOYSTICK
-endif
-endif
+OBJS = main.rel radio.rel usb.rel usbDescriptor.rel led.rel utils.rel crtxinit.rel ppm.rel
 
 ifdef CRPA
   CFLAGS += -DCRPA

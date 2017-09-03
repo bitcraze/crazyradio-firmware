@@ -36,10 +36,7 @@
 #include "radio.h"
 #include "usb.h"
 #include "led.h"
-
-#ifdef PPM_JOYSTICK
 #include "ppm.h"
-#endif
 
 #define MAX_SCANN_LENGTH 63 // Limits the scan result to 63B to avoid having to send two result USB packet. See usb_20.pdf #8.5.3.2
 
@@ -61,7 +58,7 @@ __xdata char tbuffer[64];
 //Receive buffer (from the ack)
 __xdata char rbuffer[64];
 
-
+//Statics
 static char scannLength;
 static bool contCarrier = false;
 static bool needAck = true;
@@ -75,23 +72,22 @@ void main()
 
   //Init the chip ID
   initId();
+
   //Init the led and set the leds until the usb is not ready
   ledInit();
 
+  //Set both LEDs on
   ledSet(LED_GREEN | LED_RED, true);
 
+  setRxen();
+
   // Initialise the radio
-#ifdef CRPA
-    // Enable LNA (PA RX)
-    P0DIR &= ~(1<<CRPA_PA_RXEN);
-    P0 |= (1<<CRPA_PA_RXEN);
-#endif
   radioInit(RADIO_MODE_PTX);
-#ifdef PPM_JOYSTICK
-  // Initialise the PPM acquisition
+
+  // Initialize the PPM acquisition
   ppmInit();
-#endif //PPM_JOYSTICK
-  // Initialise and connect the USB
+
+  // Initialize and connect the USB
   usbInit();
 
   //Globally activate the interruptions
@@ -107,29 +103,25 @@ void main()
   while (usbGetState() != CONFIGURED);
 
   //Activate OUT1
-  OUT1BC=0xFF;
+  OUT1BC = 0xFF;
 
   while(1)
   {
-    if (mode == MODE_LEGACY)
-    {
+    if (mode == MODE_LEGACY) {
       // Run legacy mode
       legacyRun();
-    }
-    else if (mode == MODE_CMD)
-    {
+    } else if (mode == MODE_CMD) {
       // Run cmd mode
       cmdRun();
-    }
-    else if (mode == MODE_PRX)
-    {
+    } else if (mode == MODE_PRX) {
       // Run PRX mode
       prxRun();
     }
 
     //USB vendor setup handling
-    if(usbIsVendorSetup())
+    if ( usbIsVendorSetup() ) {
       handleUsbVendorSetup();
+    }
   }
 }
 
@@ -329,9 +321,8 @@ void launchBootloader()
   bootloader();
 }
 
-/* 'Legacy' pre-1.0 protocol, handles only radio packets and require the
- *  computer to ping-pong sending and receiving
- */
+// 'Legacy' pre-1.0 protocol, handles only radio packets and require the
+// computer to ping-pong sending and receiving
 void legacyRun()
 {
   char status;
