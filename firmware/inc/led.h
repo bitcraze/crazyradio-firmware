@@ -35,7 +35,6 @@ typedef enum {
 } led_t;
 
 void ledInit();
-
 void ledSet(led_t led, bool value);
 
 #endif /* __LED_H__ */
