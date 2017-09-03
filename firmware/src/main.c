@@ -36,16 +36,20 @@
 #include "radio.h"
 #include "usb.h"
 #include "led.h"
+
 #ifdef PPM_JOYSTICK
 #include "ppm.h"
 #endif
 
-//Compilation seems bugged on SDCC 3.1, imposing 3.2
+#define MAX_SCANN_LENGTH 63 // Limits the scan result to 63B to avoid having to send two result USB packet. See usb_20.pdf #8.5.3.2
+
+//Compilation seems buggy on SDCC 3.1, imposing 3.2
 //Comment-out the three following lines only if you know what you are doing!
 //#if SDCC != 320
 //#error Compiling with SDCC other than 3.2 is not supported due to a bug when launching the bootloader
 //#endif
 
+//Declare functions
 void launchBootloader();
 void handleUsbVendorSetup();
 void legacyRun();
@@ -57,14 +61,10 @@ __xdata char tbuffer[64];
 //Receive buffer (from the ack)
 __xdata char rbuffer[64];
 
-//Limits the scann result to 63B to avoid having to send two result USB packet
-//See usb_20.pdf #8.5.3.2
-#define MAX_SCANN_LENGTH 63
+
 static char scannLength;
-
-static bool contCarrier=false;
+static bool contCarrier = false;
 static bool needAck = true;
-
 static volatile unsigned char mode = MODE_LEGACY;
 
 void main()
@@ -76,11 +76,8 @@ void main()
   //Init the chip ID
   initId();
   //Init the led and set the leds until the usb is not ready
-#ifndef CRPA
-  ledInit(CR_LED_RED, CR_LED_GREEN);
-#else
-  ledInit(CRPA_LED_RED, CRPA_LED_GREEN);
-#endif
+  ledInit();
+
   ledSet(LED_GREEN | LED_RED, true);
 
   // Initialise the radio
