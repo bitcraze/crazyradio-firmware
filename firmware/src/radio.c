@@ -27,7 +27,6 @@
 #include "nRF24LU1p.h"
 #include "nRF24L01.h"
 #include "utils.h"
-
 #include "radio.h"
 #include "usb.h"
 #include "pinout.h"
@@ -99,7 +98,8 @@ char spiRadioReceive()
   return spiRadioSend(0x00);
 }
 
-void setRxen() {
+void setRxen()
+{
     //CRPA RXEN
     #ifdef CRPA
         // Enable LNA (PA RX)
@@ -149,7 +149,6 @@ void radioDeinit()
   RFCON = 0x00;  //Radio unclocked
   RFCTL = 0x00;  //SPI disable
 }
-
 
 //Nop command, permit to get the status byte
 char radioNop()

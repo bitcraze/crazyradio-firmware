@@ -57,6 +57,7 @@ void cmdRun();
 __xdata char tbuffer[64];
 //Receive buffer (from the ack)
 __xdata char rbuffer[64];
+__xdata char rpbuffer[64];
 
 //Statics
 static char scannLength;
@@ -413,8 +414,6 @@ void sendError(unsigned char code, unsigned char param, unsigned char pos)
 
   IN1BC = 4;
 }
-
-__xdata char rpbuffer[64];
 
 void cmdRun()
 {
