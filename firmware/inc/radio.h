@@ -36,6 +36,7 @@ enum radioMode_e
 };
 
 //High level functions
+void setRxen();
 void radioInit(enum radioMode_e mode);
 void radioDeinit();
 unsigned char radioSendPacket(__xdata char *payload, char len,

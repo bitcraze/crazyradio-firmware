@@ -25,38 +25,43 @@
  */
 
 #include "nRF24LU1p.h"
+#include "pinout.h"
 #include "led.h"
 
 static unsigned char redPin;
 static unsigned char greenPin;
 
-void ledInit(unsigned char redpin, unsigned char greenpin)
+void ledInit()
 {
-  redPin = redpin;
-  greenPin = greenpin;
+  #ifndef CRPA
+    redPin = CR_LED_RED;
+    greenPin = CR_LED_GREEN;
+  #else
+    redPin = CRPA_LED_RED;
+    greenPin = CRPA_LED_GREEN;
+  #endif
 
   //Set red and green led pins as output
-  P0DIR &= ~((1<<redPin) | (1<<greenPin));
+  P0DIR &= ~( ( 1 << redPin ) | ( 1 << greenPin ) );
   //Clear red and green leds
-  P0 &= ~((1<<redPin) | (1<<greenPin));
+  P0 &= ~( ( 1 << redPin ) | ( 1 << greenPin ) );
 }
 
-#pragma nooverlay
 void ledSet(led_t led, bool value)
 {
-  if(led&LED_RED)
-  {
-    if (value)
-      P0 |= (1<<redPin);
-    else
-      P0 &= ~(1<<redPin);
+  if ( led & LED_RED ) {
+    if (value) {
+      P0 |= (1 << redPin);
+    } else {
+      P0 &= ~(1 << redPin);
+    }
   }
 
-  if (led & LED_GREEN)
-  {
-    if (value)
-      P0 |= (1<<greenPin);
-    else
-      P0 &= ~(1<<greenPin);
+  if ( led & LED_GREEN ) {
+    if (value) {
+      P0 |= (1 << greenPin);
+    } else {
+      P0 &= ~(1 << greenPin);
+    }
   }
 }

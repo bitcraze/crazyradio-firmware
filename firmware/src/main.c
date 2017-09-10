@@ -36,16 +36,17 @@
 #include "radio.h"
 #include "usb.h"
 #include "led.h"
-#ifdef PPM_JOYSTICK
 #include "ppm.h"
-#endif
 
-//Compilation seems bugged on SDCC 3.1, imposing 3.2
+#define MAX_SCANN_LENGTH 63 // Limits the scan result to 63B to avoid having to send two result USB packet. See usb_20.pdf #8.5.3.2
+
+//Compilation seems buggy on SDCC 3.1, imposing 3.2
 //Comment-out the three following lines only if you know what you are doing!
 //#if SDCC != 320
 //#error Compiling with SDCC other than 3.2 is not supported due to a bug when launching the bootloader
 //#endif
 
+//Declare functions
 void launchBootloader();
 void handleUsbVendorSetup();
 void legacyRun();
@@ -56,15 +57,12 @@ void cmdRun();
 __xdata char tbuffer[64];
 //Receive buffer (from the ack)
 __xdata char rbuffer[64];
+__xdata char rpbuffer[64];
 
-//Limits the scann result to 63B to avoid having to send two result USB packet
-//See usb_20.pdf #8.5.3.2
-#define MAX_SCANN_LENGTH 63
+//Statics
 static char scannLength;
-
-static bool contCarrier=false;
+static bool contCarrier = false;
 static bool needAck = true;
-
 static volatile unsigned char mode = MODE_LEGACY;
 
 void main()
@@ -75,26 +73,22 @@ void main()
 
   //Init the chip ID
   initId();
+
   //Init the led and set the leds until the usb is not ready
-#ifndef CRPA
-  ledInit(CR_LED_RED, CR_LED_GREEN);
-#else
-  ledInit(CRPA_LED_RED, CRPA_LED_GREEN);
-#endif
+  ledInit();
+
+  //Set both LEDs on
   ledSet(LED_GREEN | LED_RED, true);
 
+  setRxen();
+
   // Initialise the radio
-#ifdef CRPA
-    // Enable LNA (PA RX)
-    P0DIR &= ~(1<<CRPA_PA_RXEN);
-    P0 |= (1<<CRPA_PA_RXEN);
-#endif
   radioInit(RADIO_MODE_PTX);
-#ifdef PPM_JOYSTICK
-  // Initialise the PPM acquisition
+
+  // Initialize the PPM acquisition
   ppmInit();
-#endif //PPM_JOYSTICK
-  // Initialise and connect the USB
+
+  // Initialize and connect the USB
   usbInit();
 
   //Globally activate the interruptions
@@ -110,29 +104,25 @@ void main()
   while (usbGetState() != CONFIGURED);
 
   //Activate OUT1
-  OUT1BC=0xFF;
+  OUT1BC = 0xFF;
 
   while(1)
   {
-    if (mode == MODE_LEGACY)
-    {
+    if (mode == MODE_LEGACY) {
       // Run legacy mode
       legacyRun();
-    }
-    else if (mode == MODE_CMD)
-    {
+    } else if (mode == MODE_CMD) {
       // Run cmd mode
       cmdRun();
-    }
-    else if (mode == MODE_PRX)
-    {
+    } else if (mode == MODE_PRX) {
       // Run PRX mode
       prxRun();
     }
 
     //USB vendor setup handling
-    if(usbIsVendorSetup())
+    if ( usbIsVendorSetup() ) {
       handleUsbVendorSetup();
+    }
   }
 }
 
@@ -332,9 +322,8 @@ void launchBootloader()
   bootloader();
 }
 
-/* 'Legacy' pre-1.0 protocol, handles only radio packets and require the
- *  computer to ping-pong sending and receiving
- */
+// 'Legacy' pre-1.0 protocol, handles only radio packets and require the
+// computer to ping-pong sending and receiving
 void legacyRun()
 {
   char status;
@@ -425,8 +414,6 @@ void sendError(unsigned char code, unsigned char param, unsigned char pos)
 
   IN1BC = 4;
 }
-
-__xdata char rpbuffer[64];
 
 void cmdRun()
 {
