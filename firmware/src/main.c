@@ -46,6 +46,7 @@
 //#error Compiling with SDCC other than 3.2 is not supported due to a bug when launching the bootloader
 //#endif
 
+void checkBootPin();
 void launchBootloader();
 void handleUsbVendorSetup();
 void legacyRun();
@@ -72,6 +73,8 @@ void main()
   CKCON = 2;
 
   mode = MODE_LEGACY;
+
+  checkBootPin();
 
   //Init the chip ID
   initId();
@@ -308,6 +311,28 @@ void handleUsbVendorSetup()
 
   //Stall in error if nothing executed!
   usbDismissSetup();
+}
+
+void checkBootPin()
+{
+  int i;
+  void (*bootloader)() = (void (*)())0x7800;
+
+  // Detect hard short to GCC
+  for (i=0; i<200; i++) {
+    if ((P0 & (1<<5)) == 0) {
+      return;
+    }
+  }
+
+  //Deactivate the interruptions
+  IEN0 = 0x00;
+
+  //Reset memory wait-state to default
+  CKCON = 1;
+
+  //Call the bootloader
+  bootloader();
 }
 
 // De-init all the peripherical,
