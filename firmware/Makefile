@@ -1,4 +1,7 @@
 
+# Build configuration
+CRPA ?= 1
+
 #Compiler
 SDCC ?= sdcc
 SDAS8051 ?= sdas8051
@@ -21,14 +24,14 @@ ifneq ($(PPM_JOYSTICK), 0)
 endif
 endif
 
-ifdef CRPA
+ifeq ($(strip $(CRPA)),1)
   CFLAGS += -DCRPA
 endif
 
 .PHONY: all cri
 
 all: cradio.bin
-ifdef CRPA
+ifeq ($(strip $(CRPA)),1)
 	@echo Crazyradio PA build
 else
 	@echo Original Crazyradio build

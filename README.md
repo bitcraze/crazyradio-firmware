@@ -33,11 +33,11 @@ To build the firmware you should navigate to the firmware directory.
 
 ### Build for Crazyradio
 ```
-make
+make CRPA=0
 ```
 ### Build for Crazyradio PA
 ```
-make CRPA=1
+make
 ```
 
 ## Flashing the Firmware
