@@ -50,6 +50,10 @@ bin/cradio.cri: bin/cradio.bin
 
 clean:
 	rm -f bin/*
+	rm -f TAGS
+
+tags:
+	etags ./src/*.c ./inc/*.h
 
 mrproper: clean
 	rm -f src/*~ inc/*~ *~
