@@ -4,3 +4,4 @@ firmware/bin/*
 *.o
 nrfProg/nrfProg
 *.gch
+TAGS
