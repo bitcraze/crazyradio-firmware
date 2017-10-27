@@ -109,10 +109,15 @@ void radioInit(enum radioMode_e mode)
   {
   case RADIO_MODE_PTX:
     // Energize the radio in PTX mode. Interrupts disable
+    // CRC enabled (which is triggered by setting EN_AA anyway)
+    // sets CRC to 2 bytes 
     radioWriteReg(REG_CONFIG, 0x7E);
     break;
   case RADIO_MODE_PRX:
-    // Energize the radio in PRX mode. Interrupts disable
+    // Energize the radio in PRX mode. TX Interrupts disable
+    // MASK_RX_DR not set - enables interupt for RX_DR as active low on RFIRQ
+    // CRC enabled (which is triggered by setting EN_AA anyway)
+    // sets CRC to 2 bytes 
     radioWriteReg(REG_CONFIG, 0x3F);
     break;
   }
@@ -460,16 +465,22 @@ void radioSetMode(enum radioMode_e mode)
   {
   case RADIO_MODE_PTX:
     // Energize the radio in PTX mode. Interrupts disable
+    // CRC enabled (which is triggered by setting EN_AA anyway)
+    // sets CRC to 2 bytes 
     radioWriteReg(REG_CONFIG, 0x7E);
     break;
   case RADIO_MODE_PRX:
     // Energize the radio in PRX mode. Interrupts disable
+    // CRC enabled (which is triggered by setting EN_AA anyway)
+    // sets CRC to 2 bytes 
     radioWriteReg(REG_CONFIG, 0x7F);
     // start receiving
     RADIO_EN_CE();
     break;
   }
 }
+
+
 
 bool radioIsRxEmpty()
 {

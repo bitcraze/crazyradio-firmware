@@ -229,6 +229,53 @@ void handleUsbVendorSetup()
         usbAckSetup();
         return;
     }
+    // added new commands to support fine-grained control 
+    // not required for CrazyFlie operation!
+    else if(setup->request == SHOCKBURST_DISABLE)
+    {
+      // applies to all 5 data pipes
+      radioWriteReg(REG_EN_AA, 0x00);
+      return;
+    }
+    else if(setup->request == SHOCKBURST_ENABLE)
+    {
+      // applies to all 5 data pipes
+      radioWriteReg(REG_EN_AA, 0x3F);
+      return;
+    }
+    else if(setup->request == CRC_DISABLE)
+    {
+      char config=radioReadReg(REG_CONFIG);
+      // clear bit 3 EN_CRC
+      config &= ~(1 << 3);
+      radioWriteReg(REG_CONFIG, config);
+      return;
+    }
+    else if(setup->request == CRC_ENABLE)
+    {
+      char config=radioReadReg(REG_CONFIG);
+      // set bit 3 EN_CRC
+      config |= 1 << 3;
+      radioWriteReg(REG_CONFIG, config);
+      return;
+    }
+    else if(setup->request == CRC_ONEBYTE)
+    {
+      char config=radioReadReg(REG_CONFIG);
+      // clear bit 2 CRCO
+      config &= ~(1 << 2);
+      radioWriteReg(REG_CONFIG, config);
+      return;
+    }
+    else if(setup->request == CRC_TWOBYTE)
+    {
+      char config=radioReadReg(REG_CONFIG);
+      // set bit 2 CRCO
+      config |= 1 << 2;
+      radioWriteReg(REG_CONFIG, config);
+      return;
+    }
+    // end new commands
     else if(setup->request == CHANNEL_SCANN && setup->requestType == 0x40)
     {
       int i;

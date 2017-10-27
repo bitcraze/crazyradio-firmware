@@ -111,6 +111,15 @@ typedef struct {
 #define SET_CONT_CARRIER  0x20
 #define CHANNEL_SCANN     0x21
 #define SET_MODE          0x22
+// added new commands to support fine-grained control 
+// not required for CrazyFlie operation!
+#define SHOCKBURST_DISABLE 0x30
+#define SHOCKBURST_ENABLE  0x31
+#define CRC_DISABLE        0x32
+#define CRC_ENABLE         0x33
+#define CRC_ONEBYTE        0x34
+#define CRC_TWOBYTE        0x35
+// end new commands
 #define MSFT_ID_FEATURE_DESCRIPTOR 0xFE
 #define LAUNCH_BOOTLOADER 0xFF
 
