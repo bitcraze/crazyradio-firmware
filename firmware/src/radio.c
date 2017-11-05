@@ -480,9 +480,223 @@ void radioSetMode(enum radioMode_e mode)
   }
 }
 
-
-
 bool radioIsRxEmpty()
 {
   return radioReadReg(REG_FIFO_STATUS)&FIFO_STATUS_RX_EMPTY;
 }
+
+#ifdef SUPPORT_NON_CRAZYFLIE
+
+/* New functions to allow low-level access to control registers
+   that are not needed for CrazyFlie use but might be for other custom apps */
+void radioShockburstPipes(char pipes)
+{
+  char val;
+
+  if(pipes>6) pipes=6;
+  if(pipes<1) pipes=1;
+
+  switch(pipes) {
+    default:
+    case 0:
+      val=0b00000000;
+      break;
+    case 1:
+      val=0b00000001;
+      break;
+    case 2:
+      val=0b00000011;
+      break;
+    case 3:
+      val=0b00000111;
+      break;
+    case 4:
+      val=0b00001111;
+      break;
+    case 5:
+      val=0b00011111;
+      break;
+    case 6:
+      val=0b00111111;
+      break;
+  }
+  radioWriteReg(REG_EN_AA, val);
+  return;
+}
+
+void radioSetCRC(char enable)
+{
+  if(enable) {
+    char config=radioReadReg(REG_CONFIG);
+    // clear bit 3 EN_CRC
+    config &= ~(1 << 3);
+    radioWriteReg(REG_CONFIG, config);
+  } else {
+    char config=radioReadReg(REG_CONFIG);
+    // set bit 3 EN_CRC
+    config |= 1 << 3;
+    radioWriteReg(REG_CONFIG, config);
+  }
+  return;
+}
+
+void radioSetCRCLen(char len)
+{
+  if(len==1) {
+    char config=radioReadReg(REG_CONFIG);
+    // set bit 2 CRCO
+    config |= 1 << 2;
+    radioWriteReg(REG_CONFIG, config);
+  } else {
+    char config=radioReadReg(REG_CONFIG);
+    // clear bit 2 CRCO
+    config &= ~(1 << 2);
+    radioWriteReg(REG_CONFIG, config);
+  }
+}
+
+void radioSetAddrLen(char len)
+{
+  if(len>5) len=5;
+  if(len<3) len=3;
+  len=len-2;
+  radioWriteReg(REG_SETUP_AW, len);
+  return;
+}
+
+void radioEnableRxPipe(char pipes)
+{
+  char val;
+
+  if(pipes>6) pipes=6;
+  if(pipes<1) pipes=1;
+  switch(pipes) {
+    default:
+    case 0:
+      val=0b00000000;
+      break;
+    case 1:
+      val=0b00000001;
+      break;
+    case 2:
+      val=0b00000011;
+      break;
+    case 3:
+      val=0b00000111;
+      break;
+    case 4:
+      val=0b00001111;
+      break;
+    case 5:
+      val=0b00011111;
+      break;
+  }
+  radioWriteReg(REG_EN_RXADDR, val);
+  return;
+}
+
+
+void radioDisableRetry(void)
+{
+  radioWriteReg(REG_SETUP_RETR, 0x00);
+  return;
+}
+
+void radioRxPayloadLen(char pipe, char len)
+{
+  if(pipe>5) pipe=5;
+  if(pipe<0) pipe=0;
+  if(len>32) len=32;
+  if(len<0) len=0;  // len=0 means pipe not used
+  
+  switch(pipe) {
+    case 0:
+      radioWriteReg(REG_RX_PW_P0, len);
+      break;
+    case 1:
+      radioWriteReg(REG_RX_PW_P1, len);
+      break;
+    case 2:
+      radioWriteReg(REG_RX_PW_P2, len);
+      break;
+    case 3:
+      radioWriteReg(REG_RX_PW_P3, len);
+      break;
+    case 4:
+      radioWriteReg(REG_RX_PW_P4, len);
+      break;
+    case 5:
+      radioWriteReg(REG_RX_PW_P5, len);
+      break;
+  }
+  return;
+}
+
+void radioRxDynPayload(char pipe, bool enable)
+{
+  if(pipe>5) pipe=5;
+  if(pipe<0) pipe=0;
+  
+  if(enable) {
+    char config=radioReadReg(REG_DYNPD);
+    // set bit pipe 
+    config |= 1 << pipe;
+    radioWriteReg(REG_DYNPD, config);
+  } else {
+    char config=radioReadReg(REG_DYNPD);
+    // clear bit pipe
+    config &= ~(1 << pipe);
+    radioWriteReg(REG_DYNPD, config);
+  }
+  return;
+}
+
+
+void radioTxDynPayload(bool enable)
+{
+  if(enable) {
+    char config=radioReadReg(REG_FEATURE);
+    // set bit 2 
+    config |= 1 << 2;
+    radioWriteReg(REG_FEATURE, config);
+  } else {
+    char config=radioReadReg(REG_FEATURE);
+    // clear bit 2
+    config &= ~(1 << 2);
+    radioWriteReg(REG_FEATURE, config);
+  }
+  return;
+}
+
+void radioPayloadAck(bool enable)
+{
+  if(enable) {
+    char config=radioReadReg(REG_FEATURE);
+    // set bit 1 
+    config |= 1 << 1;
+    radioWriteReg(REG_FEATURE, config);
+  } else {
+    char config=radioReadReg(REG_FEATURE);
+    // clear bit 1
+    config &= ~(1 << 1);
+    radioWriteReg(REG_FEATURE, config);
+  }
+  return;
+}
+
+void radioTxPayloadNoAck(bool enable)
+{
+  if(enable) {
+    char config=radioReadReg(REG_FEATURE);
+    // set bit 0 
+    config |= 1;
+    radioWriteReg(REG_FEATURE, config);
+  } else {
+    char config=radioReadReg(REG_FEATURE);
+    // clear bit 0
+    config &= ~(1);
+    radioWriteReg(REG_FEATURE, config);
+  }
+  return;
+}
+#endif
