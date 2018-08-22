@@ -174,19 +174,12 @@ void handleUsbVendorSetup()
     }
     else if(setup->request == SET_RADIO_ADDRESS)
     {
-#ifdef SUPPORT_NON_CRAZYFLIE
       if((setup->length>5)||(setup->length<3))
       {
         usbDismissSetup();
         return;
       }
-#else
-      if(setup->length != 5)
-      {
-        usbDismissSetup();
-        return;
-      }
-#endif
+      
       //Arm and wait for the out transaction
       OUT0BC = BCDUMMY;
       while (EP0CS & OUTBSY);
@@ -237,7 +230,7 @@ void handleUsbVendorSetup()
         usbAckSetup();
         return;
     }
-#ifdef SUPPORT_NON_CRAZYFLIE
+
     /*
        GENERIC CONTROL FUNCTIONS
        New functions to allow low-level access to control registers
@@ -325,7 +318,7 @@ void handleUsbVendorSetup()
     /*
        END GENERIC CONTROL FUNCTIONS
     */
-#endif
+
     else if(setup->request == CHANNEL_SCANN && setup->requestType == 0x40)
     {
       int i;

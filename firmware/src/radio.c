@@ -485,8 +485,6 @@ bool radioIsRxEmpty()
   return radioReadReg(REG_FIFO_STATUS)&FIFO_STATUS_RX_EMPTY;
 }
 
-#ifdef SUPPORT_NON_CRAZYFLIE
-
 /* New functions to allow low-level access to control registers
    that are not needed for CrazyFlie use but might be for other custom apps */
 void radioShockburstPipes(char pipes)
@@ -699,4 +697,3 @@ void radioTxPayloadNoAck(bool enable)
   }
   return;
 }
-#endif

@@ -29,12 +29,6 @@
 
 #include <stdbool.h>
 
-/* added functionality to support use cases other than just those needed for the
-   CRAZYFLIE.  This includes control of the CRC, address length, ack properties, etc.
-   Do not enable unless you know what you are doing.  Relatively untested
-*/   
-#define SUPPORT_NON_CRAZYFLIE 1
-
 //USB state type
 typedef enum {POWERED, DEFAULT, ADDRESS, CONFIGURED} usbState_t;
 
