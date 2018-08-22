@@ -37,7 +37,7 @@ make CRPA=0
 ```
 ### Build for Crazyradio PA
 ```
-make
+make CRPA=1
 ```
 
 ## Flashing the Firmware
@@ -46,7 +46,7 @@ To flash the firmware run the following from the firmware directory:
 
 ```
 python ../usbtools/launchBootloader.py
-python ../usbtools/nrfbootload.py flash bin/cradio.bin
+sudo python ../usbtools/nrfbootload.py flash bin/cradio.bin
 ```
 
 After flashing successfully, you need to replug the Crazyradio.
