@@ -35,6 +35,10 @@ enum radioMode_e
   RADIO_MODE_PRX,
 };
 
+#define ARD_RAW 0
+#define ARD_PLOAD 0x80
+
+
 //High level functions
 void radioInit(enum radioMode_e mode);
 void radioDeinit();
@@ -55,6 +59,10 @@ uint8_t radioGetTxRetry(void);
 void radioSetMode(enum radioMode_e mode);
 
 bool radioIsRxEmpty();
+void radioSetShockburst(char enable);
+void radioSetCRC(char enable);
+void radioSetCRCLen(char len);
+
 
 //Each function returns the status register
 char radioNop();
@@ -66,7 +74,17 @@ void radioTxPacketNoAck(__xdata char *payload, char len);
 void radioAckPacket(char pipe, __xdata char* payload, char len);
 char radioRxPacket(__xdata char *payload);
 
-#define ARD_RAW 0
-#define ARD_PLOAD 0x80
+void radioShockburstPipes(char pipes);
+void radioSetCRC(char enable);
+void radioSetCRCLen(char len);
+void radioSetAddrLen(char len);
+void radioEnableRxPipe(char pipes);
+void radioDisableRetry(void);
+void radioRxPayloadLen(char pipe, char len);
+void radioRxDynPayload(char pipe, bool enable);
+void radioTxDynPayload(bool enable);
+void radioPayloadAck(bool enable);
+void radioTxPayloadNoAck(bool enable);
+
 
 #endif /* __RADIO_H__ */

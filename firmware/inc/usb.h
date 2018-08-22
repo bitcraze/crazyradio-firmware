@@ -111,6 +111,25 @@ typedef struct {
 #define SET_CONT_CARRIER  0x20
 #define CHANNEL_SCANN     0x21
 #define SET_MODE          0x22
+
+/*
+  GENERIC CONTROL FUNCTIONS
+  New functions to allow low-level access to control registers
+  that are not needed for CrazyFlie use but might be for other custom apps
+*/
+#define SHOCKBURST        0x30
+#define CRC               0x31
+#define CRC_LEN           0x32
+#define ADDR_LEN          0x33
+#define EN_RX_PIPES       0x34
+#define DISABLE_RETRY     0x35
+#define DYNPD             0x36
+#define EN_DPL            0x37
+#define EN_ACK_PAY        0x38
+#define EN_DYN_ACK        0x40
+// end new commands
+
+
 #define MSFT_ID_FEATURE_DESCRIPTOR 0xFE
 #define LAUNCH_BOOTLOADER 0xFF
 

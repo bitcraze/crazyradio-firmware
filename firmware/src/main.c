@@ -40,6 +40,7 @@
 #include "ppm.h"
 #endif
 
+
 //Compilation seems bugged on SDCC 3.1, imposing 3.2
 //Comment-out the three following lines only if you know what you are doing!
 //#if SDCC != 320
@@ -173,12 +174,12 @@ void handleUsbVendorSetup()
     }
     else if(setup->request == SET_RADIO_ADDRESS)
     {
-      if(setup->length != 5)
+      if((setup->length>5)||(setup->length<3))
       {
         usbDismissSetup();
         return;
       }
-
+      
       //Arm and wait for the out transaction
       OUT0BC = BCDUMMY;
       while (EP0CS & OUTBSY);
@@ -229,6 +230,95 @@ void handleUsbVendorSetup()
         usbAckSetup();
         return;
     }
+
+    /*
+       GENERIC CONTROL FUNCTIONS
+       New functions to allow low-level access to control registers
+       that are not needed for CrazyFlie use but might be for other custom apps
+    */
+    else if(setup->request == SHOCKBURST)
+    {
+      char val=setup->value;
+      if(val>6) val=6;
+      if(val<0) val=0;
+         
+      radioShockburstPipes(val);
+      usbAckSetup();
+      return;
+    }
+    else if(setup->request == CRC)
+    {
+      if(setup->value == 1) {
+        radioSetCRC(true);
+      } else {
+        radioSetCRC(false);
+      }
+      usbAckSetup();
+      return;
+    }
+    else if(setup->request == CRC_LEN)
+    {
+      if(setup->value == 1) {
+        radioSetCRCLen(2);
+      } else {
+        radioSetCRCLen(2);
+      }
+      usbAckSetup();
+      return;
+    }
+    else if(setup->request == ADDR_LEN)
+    {
+      radioSetAddrLen(setup->value);
+      usbAckSetup();
+      return;
+    }
+    else if(setup->request == EN_RX_PIPES)
+    {
+      radioEnableRxPipe(setup->value);
+      usbAckSetup();
+      return;
+    }
+    else if(setup->request == DISABLE_RETRY)
+    {
+      radioDisableRetry();
+      usbAckSetup();
+      return;
+    }
+    else if(setup->request == DYNPD)
+    {
+      char val=setup->value;
+      // FIXME hack - do all 6 pipes the same
+      int x;
+      for(x=0;x<7;x++)
+      {
+        // disable dynamic payload AND set the new payload len
+        radioRxDynPayload(x, false);
+        radioRxPayloadLen(x, val);
+      }
+      usbAckSetup();
+      return;
+    }
+    else if(setup->request == EN_DPL)
+    {
+      radioTxDynPayload(true);
+      return;
+    }
+    else if(setup->request == EN_ACK_PAY)
+    {
+      if(setup->value==1) radioPayloadAck(true);
+      else  radioPayloadAck(false);
+      return;
+    }
+    else if(setup->request == EN_DYN_ACK)
+    {
+      if(setup->value==1) radioPayloadAck(true);
+      else  radioPayloadAck(false);
+      return;
+    }
+    /*
+       END GENERIC CONTROL FUNCTIONS
+    */
+
     else if(setup->request == CHANNEL_SCANN && setup->requestType == 0x40)
     {
       int i;
