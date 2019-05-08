@@ -51,3 +51,10 @@ sudo python ../usbtools/nrfbootload.py flash bin/cradio.bin
 
 After flashing successfully, you need to replug the Crazyradio.
 More details are in the [wiki](https://wiki.bitcraze.io/projects:crazyradio:programming).
+
+## Check your firmware version
+Run the following command:
+
+```
+lsusb -d 1915:7777 -v | grep bcdDevice
+```

@@ -58,7 +58,7 @@ def launchBootloader(verbose = False):
     sys.stdout.flush()
 
   #Send the command to arm the bootloader
-  handle.controlMsg(0x40, 0xFF, (), value=0, index=0, timeout=100)
+  handle.controlMsg(0x40, 0xFF, (), value=0, index=0, timeout=5000)
 
   #resets to bootloader (Can fail as the device will disapear)
   try:
