@@ -1,0 +1,4 @@
+- page_id: home
+- title: Install Instructions
+  subs:
+    - {page_id: dummy}

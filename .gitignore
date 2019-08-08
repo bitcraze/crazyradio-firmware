@@ -5,3 +5,6 @@ firmware/bin/*
 nrfProg/nrfProg
 *.gch
 TAGS
+
+#jykell files
+docs/.jekyll-metadata
