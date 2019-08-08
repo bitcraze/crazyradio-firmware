@@ -2,4 +2,12 @@
 - title: Building and Flashing
   subs:
     - {page_id: building_flashing}
+    - {page_id: programming}
+- title: Explanation Functionalities
+  subs:
+    - {page_id: usb_radio_protocol}
+- title: Development
+  subs:
+    - {page_id: dev_env}
+    - {page_id: spi_programming}
 
