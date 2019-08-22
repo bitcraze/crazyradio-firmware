@@ -53,7 +53,7 @@ Step-by-step upgrade using the Bitcraze VM
 
 Below is a short guide with step-by-step instructions on how to upgrade
 the Crazyradio with the latest firmware using the [Bitcraze
-VM](/projects/virtualmachine/index). There are two different firmwares
+VM](https://wiki.bitcraze.io/projects:virtualmachine:index). There are two different firmwares
 for the Crazyradio, one for the first generation Crazyradio and one for
 the Crazyradio PA.
 
