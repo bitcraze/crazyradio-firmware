@@ -259,9 +259,9 @@ void handleUsbVendorSetup()
     else if(setup->request == CRC_LEN)
     {
       if(setup->value == 1) {
-        radioSetCRCLen(2);
+        radioSetCRCLen(0);
       } else {
-        radioSetCRCLen(2);
+        radioSetCRCLen(1);
       }
       usbAckSetup();
       return;
