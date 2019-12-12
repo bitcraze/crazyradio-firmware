@@ -149,9 +149,10 @@ typedef struct {
 #define RADIO_POWER_0dBm   3
 
 //SET_MODE parameter
-#define MODE_LEGACY 0
-#define MODE_CMD    1
-#define MODE_PRX    2
+#define MODE_LEGACY         0
+#define MODE_CMD            1
+#define MODE_PRX            2
+#define MODE_MOD_CARRIER    3
 
 // Error values
 #define ERROR_UNKNOWN_CMD   0

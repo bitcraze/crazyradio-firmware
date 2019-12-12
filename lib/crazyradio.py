@@ -113,6 +113,7 @@ class Crazyradio:
     MODE_PTX = 0 # MODE_LEGACY in firmware
     # MODE_CMD = 1 # Not yet supported
     MODE_PRX = 2
+    MODE_MOD_CARRIER = 3
 
     def __init__(self, device=None, devid=0):
         """ Create object and scan for USB dongle if no device is supplied """

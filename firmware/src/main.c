@@ -53,6 +53,8 @@ void handleUsbVendorSetup();
 void legacyRun();
 void prxRun();
 void cmdRun();
+void modCarrierRun();
+uint8_t  pn9_get_byte ();
 
 //Transmit buffer
 __xdata char tbuffer[64];
@@ -132,6 +134,11 @@ void main()
     {
       // Run PRX mode
       prxRun();
+    }
+    else if (mode == MODE_MOD_CARRIER)
+    {
+      // Run modulated carrier mode
+      modCarrierRun();
     }
 
     //USB vendor setup handling
@@ -524,6 +531,27 @@ void legacyRun()
   }
 }
 
+/* Modulated carrier mode. Constantly trasnmits random 32 byte packet
+ */
+void modCarrierRun()
+{
+  __xdata unsigned char lfsrAddress[5];
+   uint8_t i;
+  
+  for (i = 0; i < 5; i++)
+  {
+    lfsrAddress[i] = pn9_get_byte();
+  }
+  radioSetAddress(lfsrAddress);
+
+  for (i = 0; i < 32; i++)
+  {
+    tbuffer[i] = pn9_get_byte();
+  }
+
+  radioSendPacketNoAck(tbuffer, 32);
+}
+
 /* Command mode, the bulk usb packets contains both data and configuration in a
  * command string. The host can, and should, run TX and RX in different threads.
  */
@@ -690,4 +718,33 @@ void prxRun()
     //reactivate OUT1
     OUT1BC=BCDUMMY;
   }
+}
+
+/* Use PN9 to generate a pseudo-random number sequence. 
+ * The LFSR uses x^9 + x^5 as the primitive polynom.
+ */
+#define 	pn9_bit5   0x08
+#define 	pn9_bit9   0x80
+uint8_t  pn9_get_byte (void)
+{
+    static uint8_t bits_9_to_2 = 0xFF;
+    static uint8_t bit_1 = 1;
+    static uint8_t feedback;
+    uint8_t i, out;
+
+    out = bits_9_to_2;
+    
+    for (i = 0; i < 8; i++)
+    {
+        // Tap the register
+        feedback =  
+            ((((bits_9_to_2 & pn9_bit9)>>4) ^ (bits_9_to_2 & pn9_bit5)) == 0) ? 0 : 1;
+        // Shift
+        bits_9_to_2<<=1;
+        bits_9_to_2 |= (uint8_t) bit_1;
+        // Enter feedback
+        bit_1 = feedback;
+    } 
+
+    return out;
 }
