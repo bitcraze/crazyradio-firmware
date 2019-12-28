@@ -26,7 +26,7 @@ On Mac (using homebrew):
 ```
 brew install sdcc
 brew install binutils
-ln -s /usr/local/bin/gobjcopy /usr/local/bin/objcopy
+ln -s /usr/local/opt/binutils/bin/gobjcopy /usr/local/bin/objcopy
 ```
 
 To build the firmware you should navigate to the firmware directory.
