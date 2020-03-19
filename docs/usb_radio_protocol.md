@@ -1,6 +1,6 @@
 ---
 title: USB and Radio protocol of the Crazyradio dongle
-page_id: usb_radio_protocol 
+page_id: usb_radio_protocol
 ---
 
 
@@ -61,7 +61,7 @@ To send a packet, the following sequence must be followed:
 
 The status byte contains flags indicating the quality of the link:
 
-|  Status Bit  | Role			   |	
+|  Status Bit  | Role			   |
 |  ------------| --------------------------|
 |  4..7        | Number of retransmission  |
 |  2..3        | Reserved |
@@ -123,7 +123,7 @@ The default address is 0xE7E7E7E7E7.
 ### Set data rate
 
 |  bmRequestType  | bRequest                | wValue     | wIndex  | wLength  | data   |
-|  ---------------| ------------------------| -----------| --------| ---------| ------ | 
+|  ---------------| ------------------------| -----------| --------| ---------| ------ |
 |  0x40           | SET\_DATA\_RATE (0x03)  | Data rate  | Zero    | Zero     | None   |
 
 Possible values for the data rate:
@@ -245,9 +245,9 @@ be called just after a scan. Up to 63 bytes are returned corresponding
 to up to 63 channels on which the packet was acknowledged.
 
 ---
-***Note*** 
+***Note***
 
-After scanning, the channel will be set to the last scanned channel. 
+After scanning, the channel will be set to the last scanned channel.
 
 ---
 
@@ -258,14 +258,14 @@ buffer of 64 bytes. This is though to be a USB host implementation bug,
 see [ticket
 \#9](https://github.com/bitcraze/crazyradio-firmware/issues/9) in the
 Crazyradio firmware project. If a buffer of more than 63 bytes is
-returned, it means that no channel have been received. 
+returned, it means that no channel have been received.
 
 ---
 
 ### Launch bootloader
 
 |  bmRequestType  | bRequest                   | wValue  | wIndex  | wLength  | data   |
-|  ---------------| ---------------------------| --------| --------| ---------| ------ | 
+|  ---------------| ---------------------------| --------| --------| ---------| ------ |
 |  0x40           | LAUNCH\_BOOTLOADER (0xFF)  | Zero    | Zero    | Zero     | None   |
 
 This command is used to launch the Nordic semiconductor USB bootloader.
@@ -293,4 +293,4 @@ bidirectional communication even when no data is send, a null packet
 (0xff) is sent periodically to pull the downlink data stream.
 
 For Crazyflie the communication protocol is described in [Communication
-protocol Overview](https://www.bitcraze.io/docs/crazyflie-firmware/master/ctrp_index/).
+protocol Overview](https://www.bitcraze.io/documentation/repository/crazyflie-firmware/master/functional-areas/crtp/).
