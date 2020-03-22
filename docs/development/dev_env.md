@@ -9,7 +9,7 @@ Crazyradio development environment
 The crazyradio dongle is based on a Nordic semiconductor nRF24LU1 chip.
 This chip contains a 8051-compatible microcontroller and is programmed
 using the SDCC compiler. For compiling instruction see the project
-[build instructions](/building_flashing/).
+[build instructions](/building/building_flashing/).
 
 Documentation
 -------------
