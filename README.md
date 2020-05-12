@@ -2,7 +2,7 @@
 
 Source code and tools for the Bitcraze Crazyradio USB dongle.
 
-See [bitcraze wiki](http://wiki.bitcraze.se/projects:crazyradio:index) for more information about
+See [Bitcraze Documentation](https://www.bitcraze.io/documentation/repository/crazyradio-firmware/master/) for more information about
 Crazyradio and the USB protocol used.
 
 ## Folders content:
