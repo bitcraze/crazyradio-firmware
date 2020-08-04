@@ -57,7 +57,7 @@ To send a packet, the following sequence must be followed:
 -   Read the ACK from EP1\_IN. The first byte is the transfer status and
     the following bytes are the content of the ACK payload, if any.
 
- ![usb protocol](/images/usbprotocol.png)
+ ![usb protocol](/docs/images/usbprotocol.png)
 
 The status byte contains flags indicating the quality of the link:
 
