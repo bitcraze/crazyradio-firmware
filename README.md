@@ -1,4 +1,4 @@
-# Bitcraze Crazyradio dongle [![Build Status](https://travis-ci.org/bitcraze/crazyradio-firmware.svg)](https://travis-ci.org/bitcraze/crazyradio-firmware)
+# Bitcraze Crazyradio dongle [![CI](https://github.com/bitcraze/crazyradio-firmware/workflows/CI/badge.svg)](https://github.com/bitcraze/crazyradio-firmware/actions?query=workflow%3ACI)
 
 Source code and tools for the Bitcraze Crazyradio USB dongle.
 
