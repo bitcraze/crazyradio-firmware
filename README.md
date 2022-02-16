@@ -58,3 +58,11 @@ Run the following command:
 ```
 lsusb -d 1915:7777 -v | grep bcdDevice
 ```
+
+## Contribute
+Go to the [contribute page](https://www.bitcraze.io/contribute/) on our website to learn more.
+
+### Test code for contribution
+Run the automated build locally to test your code
+
+	./tools/build/build
