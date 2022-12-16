@@ -6,12 +6,12 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
+  schedule:
+    # Weekly build to make sure dependencies are OK
+    - cron:  '30 12 * * 2'
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v2
-    - name: Check and build
-      run: docker run --rm -v ${PWD}:/module bitcraze/builder ./tools/build/build 
+    uses: bitcraze/workflows/.github/workflows/basic_build.yml@b59a297ee5a6105780d4ac832100f8990f243d04
+    with:
+      builder_image: 'bitcraze/builder'
