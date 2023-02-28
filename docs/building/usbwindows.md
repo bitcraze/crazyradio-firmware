@@ -3,9 +3,6 @@ title: Installing USB driver on Windows
 page_id: usbwindows
 ---
 
-Installing USB driver on Windows
-================================
-
 Most Bitcraze products using USB communication uses the libusb driver
 for Windows. This driver allows to communicate with USB devices without
 having to develop custom drivers. This page explains how to install the
