@@ -3,6 +3,8 @@ title: Build and flash instructions
 page_id: building_flashing 
 ---
 
+> Mind that these instructions are only for the [Crazyradio PA](https://www.bitcraze.io/products/crazyradio-pa/), and not for the [Crazyradio 2.0](https://www.bitcraze.io/products/crazyradio-2-0/).
+
 ## Building the firmware
 Requirement:
   - SDCC
